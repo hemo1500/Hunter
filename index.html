@@ -378,7 +378,7 @@ window.FIREBASE_CONFIG = {
   function pathOf(p){
     var s=p.split('/');
     if(s[0]==='data'&&s[1]==='users')return 'users/'+safe(s[2]);
-    if(s[0]==='league')return 'league/'+safe(s[1]);
+    if(s[0]==='league')return 'lg/'+safe(s[1]);
     return null;
   }
   function wrap(snap){var v=snap.val(),d=null;if(v&&typeof v.j==='string'){try{d=JSON.parse(v.j);}catch(e){}}return {exists:!!d,data:function(){return d;},metadata:{fromCache:false,hasPendingWrites:false}};}
@@ -395,7 +395,7 @@ window.FIREBASE_CONFIG = {
     collection:function(p){
       return {onSnapshot:function(next,err){
         if(p!=='league'){setTimeout(function(){next({docs:[]});},0);return function(){};}
-        var r=rtdb.ref('league'),cb=function(s){var docs=[];s.forEach(function(c){var w=wrap(c);if(w.exists)docs.push({id:c.key,data:w.data});});next({docs:docs});};
+        var r=rtdb.ref('lg'),cb=function(s){var docs=[];s.forEach(function(c){var w=wrap(c);if(w.exists)docs.push({id:c.key,data:w.data});});next({docs:docs});};
         r.on('value',cb,function(e){err&&err({code:'unavailable',message:String(e)});});return function(){r.off('value',cb);};
       }};
     }
@@ -425,6 +425,23 @@ window.FIREBASE_CONFIG = {
       leave:function(){ref.off();peersCbs=[];mine.onDisconnect().cancel();return mine.remove().catch(function(){});}
     };
   }
+  /* ---- join code: league, presence and duels need a members/<uid> record that matches secret/code ---- */
+  window.HUNTER={state:'checking',listeners:[],
+    _set:function(st){this.state=st;this.listeners.forEach(function(f){try{f(st);}catch(e){}});},
+    onChange:function(f){this.listeners.push(f);},
+    join:function(code){return waitUser().then(function(u){if(!u)throw 0;return rtdb.ref('members/'+u.uid).set(String(code).trim());});},
+    setCode:function(code){return waitUser().then(function(u){if(!u)throw 0;return rtdb.ref('secret/code').set(String(code).trim());});}};
+  window.HUNTER.db={
+    on:function(p,cb){var r=rtdb.ref(p),f=function(s){cb(s.val());};r.on('value',f,function(){cb(null);});return function(){r.off('value',f);};},
+    set:function(p,v){return rtdb.ref(p).set(v);},
+    update:function(o){return rtdb.ref().update(o);},
+    key:function(p){return rtdb.ref(p).push().key;},
+    uid:function(){return auth.currentUser?auth.currentUser.uid:null;}
+  };
+  var memberReady=waitUser().then(function(u){
+    if(!u){window.HUNTER._set('offline');return;}
+    return rtdb.ref('members/'+u.uid).get().then(function(s){window.HUNTER._set(s.exists()?'member':'none');}).catch(function(){window.HUNTER._set('none');});
+  });
   var lobby=null;
   window.claude={use:function(name){
     return waitUser().then(function(u){
@@ -432,9 +449,12 @@ window.FIREBASE_CONFIG = {
       if(name==='db')return dbApi;
       if(name==='user')return {id:function(){return Promise.resolve(u.uid);},isOwner:function(){return Promise.resolve(false);},canEdit:function(){return Promise.resolve(false);},can:function(){return Promise.resolve(null);}};
       if(name==='room'){
-        if(!lobby){lobby=makeRoom('presence',u.uid);
-          lobby.join=function(n){if(!/^[a-z0-9][a-z0-9_-]{0,47}$/.test(n))return Promise.reject({code:'invalid_argument'});return Promise.resolve(makeRoom('duels/'+n,u.uid));};}
+        return memberReady.then(function(){
+        if(window.HUNTER.state!=='member')return null;
+        if(!lobby){lobby=makeRoom('pr',u.uid);
+          lobby.join=function(n){if(!/^[a-z0-9][a-z0-9_-]{0,47}$/.test(n))return Promise.reject({code:'invalid_argument'});return Promise.resolve(makeRoom('dl/'+n,u.uid));};}
         return lobby;
+        });
       }
       return null;
     });
@@ -1002,9 +1022,9 @@ function vShop(){
 
 /* ---------- play (quests / gate / shop) ---------- */
 function vPlay(){
-  const seg=[['today','مهام اليوم'],['gate','البوابة'],['shop','المتجر']];
-  const h='<div class="seg" role="tablist">'+seg.map(x=>'<button class="segb" role="tab" data-act="sub" data-v="'+x[0]+'" aria-pressed="'+(ui.sub===x[0])+'">'+x[1]+'</button>').join('')+'</div>';
-  return h+({today:vQuests,gate:vGate,shop:vShop}[ui.sub]||vQuests)();
+  const seg=[['today','مهام اليوم'],['gate','البوابة'],['room','الغرفة'],['shop','المتجر']];
+  const h='<div class="seg" role="tablist" style="grid-template-columns:repeat(4,1fr)">'+seg.map(x=>'<button class="segb" role="tab" data-act="sub" data-v="'+x[0]+'" aria-pressed="'+(ui.sub===x[0])+'">'+x[1]+'</button>').join('')+'</div>';
+  return h+({today:vQuests,gate:vGate,shop:vShop,room:window.vRoom||vQuests}[ui.sub]||vQuests)();
 }
 
 /* ---------- skill tree: real skills, each with steps and a proof ---------- */
@@ -1353,8 +1373,8 @@ function fight(){
   setTimeout(stepf,rm?0:500);
 }
 function vArmy(){
-  const seg='<div class="seg" role="tablist">'+[['tower','البرج'],['net','الشبكة']].map(x=>'<button class="segb" data-act="asub" data-v="'+x[0]+'" aria-pressed="'+(ui.armySub===x[0])+'">'+x[1]+'</button>').join('')+'</div>';
-  return seg+(ui.armySub==='net'?vNet():vTower());
+  const seg='<div class="seg" role="tablist">'+[['tower','البرج'],['net','الشبكة'],['guild','النقابة']].map(x=>'<button class="segb" data-act="asub" data-v="'+x[0]+'" aria-pressed="'+(ui.armySub===x[0])+'">'+x[1]+'</button>').join('')+'</div>';
+  return seg+(ui.armySub==='guild'&&window.vGuild?vGuild():ui.armySub==='net'?vNet():vTower());
 }
 function vTower(){
   const pw=power(),m=monster(S.army.floor),e=effPower(m,pw);
@@ -1667,7 +1687,7 @@ function rerenderOnline(){
 }
 function schedLeague(){clearTimeout(lgT);lgT=setTimeout(()=>{pubLeague();lobbyPresence();},4000);schedHub();}
 function myEvents(){return S.entries.filter(e=>['boss','skill','dungeon'].includes(e.kind)).slice(-5).map(e=>({l:String(e.label||'').slice(0,60),ts:e.ts||0}));}
-function leagueDoc(){const c=myCard();return {id:ctx.uid,pid:S.pvp.me,s:c.s,L:c.L,a:c.a,f:c.f,n:c.n,W:c.W,w:c.w,P:c.P,R:c.R,L:c.L,k:c.k,a:c.a,f:c.f,elo:S.pvp.elo,dw:S.pvp.dw,dl:S.pvp.dl,ev:myEvents()};}
+function leagueDoc(){const c=myCard();return {sk:Object.keys(S.sk).filter(k=>S.sk[k]&&S.sk[k].done),bs:EXAMS0.filter(e=>bossBeaten(e.id)).map(e=>e.id),id:ctx.uid,pid:S.pvp.me,s:c.s,L:c.L,a:c.a,f:c.f,n:c.n,W:c.W,w:c.w,P:c.P,R:c.R,L:c.L,k:c.k,a:c.a,f:c.f,elo:S.pvp.elo,dw:S.pvp.dw,dl:S.pvp.dl,ev:myEvents()};}
 async function pubLeague(){
   if(!ctx.db||!ctx.uid||live.ro)return;
   const d=leagueDoc(),j=JSON.stringify(d);if(j===lgLast)return;
@@ -1954,7 +1974,19 @@ function network(){
   others().forEach(p=>{const pid=p.presence.pid;if(typeof pid==='string'&&M[pid])M[pid].peer=p.peer;});
   return M;
 }
+function vJoin(st){
+  if(st==='checking')return '<section class="panel"><p class="hint" style="margin:0">بيتأكد من عضويتك...</p></section>';
+  if(st==='offline')return '<section class="panel"><p class="hint" style="margin:0">مش قادر يتصل بالسيرفر دلوقتي. جرّب تاني بعد شوية.</p></section>';
+  return '<section class="panel"><div class="ptitle">ادخل الشبكة</div><p style="margin:0 0 12px">الشبكة مقفولة على أصحاب صاحب اللعبة. اكتب كود الدخول اللي اتبعتلك.</p>'
+   +'<label class="lbl" for="jc" style="margin-top:0">كود الدخول</label><input class="in lt" id="jc" maxlength="40" autocomplete="off">'
+   +'<button class="btn fill block" data-act="hjoin" style="margin-top:12px">دخول</button>'
+   +'<details style="margin-top:16px"><summary class="hint" style="cursor:pointer">انا صاحب اللعبة، عايز أحدد الكود لأول مرة</summary>'
+   +'<p class="hint">الكود ده بيتحدد مرة واحدة بس، ومش هتقدر تغيّره من هنا. اختار كود صعب التخمين، 6 حروف أو أكتر.</p>'
+   +'<label class="lbl" for="jc2" style="margin-top:0">الكود الجديد</label><input class="in lt" id="jc2" maxlength="40" autocomplete="off">'
+   +'<button class="btn block" data-act="hsetcode" style="margin-top:10px">حدد الكود وادخل</button></details></section>';
+}
 function vNet(){
+  if(window.STANDALONE&&window.HUNTER&&window.HUNTER.state!=='member')return vJoin(window.HUNTER.state);
   let h='';
   const roomOk=live.lobby==='ok';
   const net=network(),me=myCard();
@@ -1987,7 +2019,7 @@ function vNet(){
   rows.forEach((r,i)=>{
     const isMe=r.id==='me',c=r.c,dv=divOf(c.W),onl=!isMe&&r.x.peer&&roomOk,rc=isMe?null:record(r.id),old=!isMe&&cardAge(c)>7;
     const canDel=!isMe&&(r.x.src.includes('code')||(live.isOwner&&r.x.src.includes('hub')));
-    h+='<div class="lb'+(isMe?' me':'')+'"><span class="pos'+(i===0?' g':'')+'">'+(i+1)+'</span><div><div class="nmx">'+(onl||isMe&&roomOk&&live.conn?'<span class="dot2 on"></span>':'')+esc(c.n)+(isMe?' (انت)':'')+'<span class="dv" style="color:'+dv[2]+'">'+dv[1]+'</span>'+(!isMe&&S.pvp.rival===r.id?' · منافسك':'')+'</div>'
+    h+='<div class="lb'+(isMe?' me':'')+'"><span class="pos'+(i===0?' g':'')+'">'+(i+1)+'</span><div data-act="prof" data-id="'+esc(isMe?(ctx.uid||''):(r.x.lid||''))+'" data-v="'+esc(isMe?'':r.id)+'" style="cursor:pointer"><div class="nmx">'+(onl||isMe&&roomOk&&live.conn?'<span class="dot2 on"></span>':'')+esc(c.n)+(isMe?' (انت)':'')+'<span class="dv" style="color:'+dv[2]+'">'+dv[1]+'</span>'+(!isMe&&S.pvp.rival===r.id?' · منافسك':'')+'</div>'
       +'<div class="w">الرتبة '+c.R+' · قوة '+c.P+' · تصنيف '+(c.elo||1000)+' · سلسلة '+c.k+' يوم'+(isMe?'':' · '+(onl?'أونلاين دلوقتي':ageText(c))+(old?' (قديم)':''))+(rc&&(rc.w||rc.l)?' · ضدك: '+rc.w+' فوز، '+rc.l+' خسارة':'')+'</div></div>'
       +'<span class="num" style="font-weight:700;color:var(--glow)">'+(ui.lgSort==='elo'?(c.elo||1000):c.W)+'</span>';
     if(!isMe){
@@ -2038,6 +2070,10 @@ document.addEventListener('click',ev=>{
   switch(a){
     case 'tab':ui.tab=b.dataset.tab;ui.addU=null;ui.edit=false;ui.addQ=false;ui.addR=false;ui.abort=false;render();window.scrollTo(0,0);break;
     case 'toggle':toggleQuest(id);break;
+    case 'hjoin':{const c=(document.getElementById('jc')||{}).value||'';if(c.trim().length<4){toast('الكود قصير');break;}
+      window.HUNTER.join(c).then(()=>{toast('دخلت الشبكة');setTimeout(()=>location.reload(),600);}).catch(()=>toast('الكود غلط'));break;}
+    case 'hsetcode':{const c=(document.getElementById('jc2')||{}).value||'';if(c.trim().length<6){toast('اختار كود 6 حروف أو أكتر');break;}
+      window.HUNTER.setCode(c).then(()=>window.HUNTER.join(c)).then(()=>{toast('اتحدد الكود ودخلت');setTimeout(()=>location.reload(),600);}).catch(()=>toast('الكود متحدد قبل كده. اكتبه في خانة الدخول'));break;}
     case 'lgsort':ui.lgSort=v;render();break;
     case 'lvch':sendChallenge(id,v);break;
     case 'lvcancel':cancelChallenge();break;
@@ -2146,7 +2182,228 @@ setInterval(tick,500);
 if(S.timer&&Date.now()>=S.timer.end)finishGate();
 connect();
 roomInit();
+if(window.HUNTER)window.HUNTER.onChange(()=>{if(ui.tab==='army'&&ui.armySub==='net')render();});
 setTimeout(()=>{checkArise();showNext();},900);
+</script>
+<script>
+/* Standalone-only features: shared study room, guilds with a weekly raid, and player profiles.
+   Runs after the main game script and uses its globals (S, save, render, toast, esc, N, live, ctx ...). */
+(function(){
+"use strict";
+const H=window.HUNTER;
+if(!H||!H.db)return;
+const GUILD_COST=2000,GUILD_MAX=20,RAID_HP=700,RAID_GOLD=150;
+const F={sr:{},gd:{},gm:{},mine:null,started:false,leaveG:null,kick:null,gName:'',gTag:''};
+window.HF=F;
+const css=document.createElement('style');
+css.textContent='#pf{position:fixed;inset:0;z-index:55;display:none;background:rgba(3,6,14,.97);overflow-y:auto;-webkit-overflow-scrolling:touch}#pf.on{display:block}'
+ +'.gtag{display:inline-block;font-family:var(--num);font-size:12px;padding:1px 6px;border:1px solid var(--gold);color:var(--gold);border-radius:3px;margin-inline-start:6px;vertical-align:middle;direction:ltr}'
+ +'.srow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px dashed rgba(94,194,255,.18)}.srow:last-child{border-bottom:0}'
+ +'.srow .w{font-size:12px;color:var(--mute)}.srleft{font-family:var(--num);font-weight:700;color:var(--glow);direction:ltr}';
+document.head.appendChild(css);
+const pf=document.createElement('div');pf.id='pf';pf.setAttribute('role','dialog');document.body.appendChild(pf);
+
+const uid=()=>H.db.uid();
+const isMember=()=>H.state==='member';
+const now=()=>Date.now();
+function rr(){ if(!document.querySelector('#ov.on')&&((ui.tab==='quests'&&ui.sub==='room')||(ui.tab==='army'&&ui.armySub==='guild')))render(); }
+function start(){
+  if(F.started||!isMember()||!uid())return;F.started=true;
+  H.db.on('sr',v=>{F.sr=v&&typeof v==='object'?v:{};const m=F.sr[uid()];if(!F.mine&&m&&m.st==='in')F.mine=m;rr();});
+  H.db.on('gd',v=>{F.gd=v&&typeof v==='object'?v:{};rr();});
+  H.db.on('gm',v=>{F.gm=v&&typeof v==='object'?v:{};rr();});
+}
+H.onChange(start);setTimeout(start,1500);
+
+/* ---------- study room ---------- */
+function srWrite(st){
+  const t=F.mine;if(!t||!uid())return;
+  const o={n:String(S.name||'صياد').slice(0,20),stat:t.stat,mins:t.mins,start:t.start,end:t.end,st,ts:now()};
+  F.mine=o;H.db.set('sr/'+uid(),o).catch(()=>{});
+}
+function syncRoom(){
+  if(!isMember())return;
+  const t=S.timer;
+  if(t&&t.room&&(!F.mine||F.mine.start!==t.start)){F.mine={stat:t.stat,mins:t.mins,start:t.start,end:t.end};srWrite('in');rr();}
+  else if(F.mine&&F.mine.st==='in'&&(!t||t.start!==F.mine.start)){
+    const done=S.entries.some(e=>e.kind==='dungeon'&&(e.ts||0)>=F.mine.end-3000);
+    srWrite(done?'done':'fled');rr();
+  }
+  document.querySelectorAll('.srleft').forEach(el=>{const e=+el.dataset.end,l=Math.max(0,e-now()),s=Math.ceil(l/1000);el.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');});
+}
+setInterval(syncRoom,1000);
+function enterRoom(){
+  if(S.timer){toast('عندك بوابة مفتوحة. خلّصها الأول');return;}
+  const t=now();S.timer={stat:ui.gStat,mins:ui.gMins,start:t,end:t+ui.gMins*60000,room:true};
+  ui.abort=false;save();syncRoom();render();
+}
+function leaveRoom(){
+  if(!S.timer||!S.timer.room)return;
+  if(ui.srAbort){S.timer=null;ui.srAbort=false;save();syncRoom();render();toast('خرجت من الغرفة قبل الوقت');}
+  else{ui.srAbort=true;render();setTimeout(()=>{if(ui.srAbort){ui.srAbort=false;rr();}},4000);}
+}
+const mmss=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');};
+window.vRoom=function(){
+  if(!isMember())return '<section class="panel"><div class="ptitle">غرفة المذاكرة</div><p class="hint" style="margin:0">ادخل الشبكة الأول بكود الدخول، من تبويب الظلال ثم الشبكة.</p></section>';
+  const me=uid(),list=Object.keys(F.sr).map(k=>Object.assign({id:k},F.sr[k])).filter(x=>x&&typeof x.end==='number');
+  const inside=list.filter(x=>x.st==='in'&&x.end>now()-60000).sort((a,b)=>a.end-b.end);
+  const recent=list.filter(x=>x.st!=='in'&&now()-(x.ts||0)<3*36e5).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  let h='<section class="panel"><div class="ptitle">غرفة المذاكرة الجماعية<span class="sp"></span><span class="side">'+N(inside.length)+' جوه دلوقتي</span></div>'
+   +'<p class="hint" style="margin:0">كل اللي جوه الغرفة بيذاكروا في نفس الوقت، وكل واحد شايف التاني. لو حد خرج قبل وقته، الكل بيعرف.</p></section>';
+  const t=S.timer;
+  if(t&&t.room){
+    h+='<section class="panel inc"><div class="ptitle">انت جوه الغرفة<span class="sp"></span><span class="side">'+esc(statName(t.stat))+'</span></div>'
+      +'<div class="bigcd srleft" data-end="'+t.end+'">'+mmss(t.end-now())+'</div>'
+      +'<p class="hint" style="text-align:center">لما الوقت يخلص بتاخد خبرة البوابة العادية: +'+N(Math.round(t.mins*mult()))+'</p>'
+      +'<button class="btn bad block" data-act="srleave">'+(ui.srAbort?'تأكيد الخروج (هتخسر الجائزة)':'اخرج من الغرفة')+'</button></section>';
+  }else if(t){
+    h+='<section class="panel"><p class="hint" style="margin:0">عندك بوابة لوحدك مفتوحة دلوقتي. خلّصها الأول وبعدين ادخل الغرفة.</p></section>';
+  }else{
+    h+='<section class="panel"><div class="ptitle">ادخل الغرفة</div><span class="lbl" style="margin-top:0">هتذاكر إيه</span><div class="chips">'+STATS.map(s=>'<button class="chip" data-act="gstat" data-v="'+s.id+'" aria-pressed="'+(ui.gStat===s.id)+'">'+s.name+'</button>').join('')+'</div>'
+      +'<span class="lbl">المدة بالدقايق</span><div class="chips">'+[25,50,90].map(v=>'<button class="chip" data-act="gmins" data-v="'+v+'" aria-pressed="'+(ui.gMins===v)+'">'+N(v)+'</button>').join('')+'</div>'
+      +'<button class="btn fill block" data-act="srenter" style="margin-top:16px">ادخل الغرفة</button></section>';
+  }
+  h+='<section class="panel"><div class="ptitle">جوه دلوقتي</div>';
+  if(!inside.length)h+='<p class="hint" style="margin:0">الغرفة فاضية. ادخل انت الأول، وصحابك هيشوفوك.</p>';
+  inside.forEach(x=>{h+='<div class="srow"><div><div><span class="dot2 on"></span>'+esc(nm(x.n))+(x.id===me?' (انت)':'')+guildTag(x.id)+'</div><div class="w">'+esc(statName(x.stat)||'')+' · '+N(nz(x.mins,600))+' دقيقة</div></div><span class="srleft" data-end="'+nz(x.end,4e12)+'">'+mmss(nz(x.end,4e12)-now())+'</span></div>';});
+  h+='</section>';
+  if(recent.length){
+    h+='<section class="panel"><div class="ptitle">آخر 3 ساعات</div><ul class="log">'+recent.slice(0,15).map(x=>'<li><span><b>'+esc(nm(x.n))+'</b> '+(x.st==='done'?'خلّص '+N(nz(x.mins,600))+' دقيقة '+esc(statName(x.stat)||''):'<span style="color:var(--bad)">خرج قبل الوقت</span>')+'</span><span class="w">'+agoText(nz(x.ts,4e12))+'</span></li>').join('')+'</ul></section>';
+  }
+  return h;
+};
+
+/* ---------- guilds ---------- */
+function members(gid){const m=F.gm[gid];return m&&typeof m==='object'?Object.keys(m):[];}
+function myGuild(){const me=uid();if(!me)return null;const g=Object.keys(F.gm).find(k=>F.gd[k]&&F.gm[k]&&F.gm[k][me]);return g||null;}
+function guildOf(u){return Object.keys(F.gm).find(k=>F.gd[k]&&F.gm[k]&&F.gm[k][u])||null;}
+function guildTag(u){const g=guildOf(u);return g?'<span class="gtag">'+esc(String(F.gd[g].tag||'').slice(0,4))+'</span>':'';}
+function wOf(u){const x=live.league[u];return x?nz(x.W,1e6):(u===uid()?weekXp().W:0);}
+function nameOf(u,g){const x=live.league[u];if(x&&x.n)return nm(x.n);if(u===uid())return S.name;const m=g&&F.gm[g]&&F.gm[g][u];return nm(m&&m.n);}
+function raid(g){const ms=members(g),hp=RAID_HP*Math.max(3,ms.length),dmg=ms.reduce((a,u)=>a+wOf(u),0);return {hp,dmg,ms,down:dmg>=hp};}
+async function foundGuild(){
+  const name=ui.gName.trim().slice(0,24),tag=ui.gTag.trim().toUpperCase().slice(0,4);
+  if(myGuild()){toast('انت في نقابة بالفعل');return;}
+  if(name.length<3){toast('اسم النقابة لازم 3 حروف على الأقل');return;}
+  if(!/^[A-Z0-9؀-ۿ]{2,4}$/.test(tag)){toast('الشعار من 2 لـ 4 حروف أو أرقام');return;}
+  if(totals().gold<GUILD_COST){toast('محتاج '+GUILD_COST+' ذهب');return;}
+  const gid=H.db.key('gd'),me=uid();
+  try{
+    await H.db.set('gd/'+gid,{name,tag,owner:me,created:now()});
+    await H.db.set('gm/'+gid+'/'+me,{n:String(S.name).slice(0,20),t:now()});
+  }catch(e){toast('ما قدرتش أأسس النقابة. جرّب تاني');return;}
+  const before=snap();
+  S.entries.push({id:'g'+gid,day:dayKey(),ts:now(),kind:'spend',xp:0,gold:-GUILD_COST,label:'تأسيس نقابة '+name});
+  ui.gName='';ui.gTag='';save();
+  queue.push({k:'[ إشعار النظام ]',t:'تم تأسيس النقابة',b:tag,s:name});render();celebrate(before);
+}
+async function joinGuild(gid){
+  if(myGuild()){toast('اخرج من نقابتك الأول');return;}
+  if(members(gid).length>=GUILD_MAX){toast('النقابة مليانة');return;}
+  try{await H.db.set('gm/'+gid+'/'+uid(),{n:String(S.name).slice(0,20),t:now()});toast('انضميت للنقابة');}catch(e){toast('ما قدرتش أنضم');}
+}
+async function leaveGuild(){
+  const g=myGuild();if(!g)return;
+  if(F.leaveG!==g){F.leaveG=g;render();setTimeout(()=>{if(F.leaveG===g){F.leaveG=null;rr();}},4000);return;}
+  F.leaveG=null;
+  try{
+    if(F.gd[g].owner===uid()){const o={};members(g).forEach(u=>o['gm/'+g+'/'+u]=null);o['gd/'+g]=null;await H.db.update(o);toast('النقابة اتحلّت');}
+    else{await H.db.set('gm/'+g+'/'+uid(),null);toast('خرجت من النقابة');}
+  }catch(e){toast('حصلت مشكلة. جرّب تاني');}
+}
+async function kick(u){
+  const g=myGuild();if(!g||F.gd[g].owner!==uid()||u===uid())return;
+  if(F.kick!==u){F.kick=u;render();setTimeout(()=>{if(F.kick===u){F.kick=null;rr();}},4000);return;}
+  F.kick=null;try{await H.db.set('gm/'+g+'/'+u,null);toast('اتشال من النقابة');}catch(e){toast('ما قدرتش أشيله');}
+}
+function claimRaid(){
+  const g=myGuild();if(!g)return;const r=raid(g);
+  if(!r.down){toast('الزعيم لسه عايش');return;}
+  if(now()-(S.raidT||0)<6*864e5){toast('أخدت مكافأة الغارة الأسبوع ده');return;}
+  S.raidT=now();S.entries.push({id:'raid'+now(),day:dayKey(),ts:now(),kind:'raid',xp:0,gold:RAID_GOLD,label:'مكافأة غارة النقابة'});
+  save();render();toast('<span class="g">+'+RAID_GOLD+' ذهب</span>');
+}
+window.vGuild=function(){
+  if(!isMember())return '<section class="panel"><div class="ptitle">النقابات</div><p class="hint" style="margin:0">ادخل الشبكة الأول بكود الدخول، من قسم الشبكة.</p></section>';
+  const g=myGuild(),me=uid();let h='';
+  if(g){
+    const gd=F.gd[g],r=raid(g),owner=gd.owner===me,claimable=r.down&&now()-(S.raidT||0)>=6*864e5;
+    h+='<section class="panel"><div class="ptitle">'+esc(String(gd.name||''))+'<span class="gtag">'+esc(String(gd.tag||''))+'</span><span class="sp"></span><span class="side">'+N(r.ms.length+'/'+GUILD_MAX)+' عضو</span></div>'
+      +'<div class="tgt" style="margin:0"><span>المؤسس</span><b>'+esc(nameOf(gd.owner,g))+'</b></div></section>';
+    h+='<section class="panel'+(r.down?'':' inc')+'"><div class="ptitle">غارة الأسبوع</div><div class="mon">'+monSvg({h:0,boss:true},'')+'<div><div class="mn boss">زعيم النقابة</div><div class="ed">صحته '+N(r.hp)+' · بتزيد مع عدد الأعضاء</div><div class="ed">كل خبرة بيكسبها أي عضو في آخر 7 أيام بتضربه</div></div></div>'
+      +'<div class="barcap" style="margin:12px 0 5px"><span>الضرر</span><span>'+N(Math.min(r.dmg,r.hp)+' / '+r.hp)+'</span></div>'+bar(Math.min(r.dmg,r.hp),r.hp,'var(--bad)')
+      +(r.down?'<p class="vlab ok" style="margin-top:12px">الزعيم اتهزم</p>':'<p class="hint" style="margin-top:12px">فاضل '+N(r.hp-r.dmg)+' خبرة علشان تهزموه.</p>')
+      +'<button class="btn '+(claimable?'fill ':'')+'block" data-act="graid"'+(claimable?'':' disabled')+'>'+(claimable?'استلم '+RAID_GOLD+' ذهب':r.down?'استلمت مكافأة الأسبوع':'المكافأة '+RAID_GOLD+' ذهب لكل عضو')+'</button></section>';
+    const ms=r.ms.slice().sort((a,b)=>wOf(b)-wOf(a));
+    h+='<section class="panel"><div class="ptitle">الأعضاء</div>';
+    ms.forEach((u,i)=>{const w=wOf(u),pct=r.dmg?Math.round(w/r.dmg*100):0;
+      h+='<div class="lb'+(u===me?' me':'')+'"><span class="pos'+(i===0?' g':'')+'">'+(i+1)+'</span><div data-act="prof" data-id="'+esc(u)+'" style="cursor:pointer"><div class="nmx">'+esc(nameOf(u,g))+(u===gd.owner?' · المؤسس':'')+(u===me?' (انت)':'')+'</div><div class="w">ساهم بـ '+pct+'% من الضرر</div></div><span class="num" style="font-weight:700;color:var(--glow)">'+w+'</span>'
+        +(owner&&u!==me?'<div class="acts"><button class="btn sm'+(F.kick===u?' bad':'')+'" data-act="gkick" data-id="'+esc(u)+'">'+(F.kick===u?'تأكيد الطرد':'طرد')+'</button></div>':'')+'</div>';});
+    h+='</section>';
+    h+='<button class="btn bad block" data-act="gleave" style="margin-bottom:14px">'+(F.leaveG===g?(owner?'تأكيد حل النقابة نهائيًا':'تأكيد الخروج'):(owner?'حل النقابة':'اخرج من النقابة'))+'</button>';
+  }else{
+    const gold=totals().gold,ok=gold>=GUILD_COST;
+    h+='<section class="panel"><div class="ptitle">أسس نقابة</div><div class="tgt" style="margin:0 0 6px"><span>تكلفة التأسيس</span><b class="num" style="color:var(--gold)">'+GUILD_COST+'</b></div><div class="tgt" style="margin:0 0 12px"><span>ذهبك</span><b class="num">'+gold+'</b></div>'
+      +(ok?'':'<p class="hint">محتاج '+N(GUILD_COST-gold)+' ذهب كمان. الذهب بييجي من المهام والبوابات والأسئلة.</p>')
+      +'<label class="lbl" for="gn" style="margin-top:0">اسم النقابة</label><input class="in" id="gn" maxlength="24" value="'+esc(ui.gName||'')+'">'
+      +'<label class="lbl" for="gt">الشعار (2 لـ 4 حروف، زي TNT)</label><input class="in lt" id="gt" maxlength="4" value="'+esc(ui.gTag||'')+'">'
+      +'<button class="btn fill block" data-act="gfound" style="margin-top:14px"'+(ok?'':' disabled')+'>أسس النقابة</button></section>';
+  }
+  const gs=Object.keys(F.gd).filter(k=>F.gd[k]&&typeof F.gd[k]==='object').map(k=>{const r=raid(k);return {k,d:F.gd[k],n:r.ms.length,W:r.ms.reduce((a,u)=>a+wOf(u),0)};}).filter(x=>x.n>0).sort((a,b)=>b.W-a.W);
+  h+='<section class="panel"><div class="ptitle">ترتيب النقابات<span class="sp"></span><span class="side">بخبرة الأعضاء في آخر 7 أيام</span></div>';
+  if(!gs.length)h+='<p class="hint" style="margin:0">لسه مفيش نقابات. كن أول مؤسس.</p>';
+  gs.forEach((x,i)=>{h+='<div class="lb'+(x.k===g?' me':'')+'"><span class="pos'+(i===0?' g':'')+'">'+(i+1)+'</span><div><div class="nmx">'+esc(String(x.d.name||''))+'<span class="gtag">'+esc(String(x.d.tag||''))+'</span></div><div class="w">'+N(x.n+'/'+GUILD_MAX)+' عضو · المؤسس '+esc(nameOf(x.d.owner,x.k))+'</div></div><span class="num" style="font-weight:700;color:var(--glow)">'+x.W+'</span>'
+    +(!g&&x.n<GUILD_MAX?'<div class="acts"><button class="btn sm fill" data-act="gjoin" data-id="'+esc(x.k)+'">انضم</button></div>':'')+'</div>';});
+  h+='</section>';
+  return h;
+};
+
+/* ---------- player profile ---------- */
+function openProfile(lid,pid){
+  const me=uid();let x=null,c=null;
+  if(lid&&live.league[lid])x=live.league[lid];
+  if(lid===me||(!lid&&!pid)){x=leagueDoc();}
+  if(pid){const n=network()[pid];if(n){c=n.card;if(!lid&&n.lid){lid=n.lid;x=live.league[lid]||x;}}}
+  const src=x||c;if(!src){toast('مفيش بيانات للاعب ده');return;}
+  const name=nm(src.n),W=nz(src.W,1e6),s=Array.isArray(src.s)?src.s:[1,1,1,1,1],w=Array.isArray(src.w)?src.w:[0,0,0,0,0];
+  const sk=x&&Array.isArray(x.sk)?x.sk.filter(k=>SKN[k]):[],bs=x&&Array.isArray(x.bs)?x.bs.filter(k=>EXAMS0.find(e=>e.id===k)):[];
+  const ev=x&&Array.isArray(x.ev)?x.ev:[],g=lid?guildOf(lid):null,dv=divOf(W),isMe=lid===me;
+  const rc=pid&&!isMe?record(pid):null;
+  let h='<div class="qzw"><div class="qzt"><div><div class="ptitle" style="margin-bottom:4px">بروفايل الصياد</div><div class="et" style="font-size:22px">'+esc(name)+(g?'<span class="gtag">'+esc(String(F.gd[g].tag||''))+'</span>':'')+'</div><div class="ed">الرتبة '+esc(String(src.R||'E'))+' · المستوى '+N(nz(src.L,999)||1)+' · <span style="color:'+dv[2]+'">'+dv[1]+'</span>'+(g?' · '+esc(String(F.gd[g].name||'')):'')+'</div></div><button class="btn sm" data-act="pfclose">إغلاق</button></div>';
+  h+='<div class="tiles"><div class="tile"><div class="v num">'+nz(src.P,1e7)+'</div><div class="k">القوة</div></div><div class="tile"><div class="v num">'+(nz(src.elo,4000)||1000)+'</div><div class="k">تصنيف المبارزات</div></div><div class="tile"><div class="v num">'+nz(src.k,9999)+'</div><div class="k">أيام متتالية</div></div></div>';
+  h+='<div class="tiles"><div class="tile"><div class="v num">'+W+'</div><div class="k">خبرة الأسبوع</div></div><div class="tile"><div class="v num">'+nz(src.a,999)+'</div><div class="k">جيش الظلال</div></div><div class="tile"><div class="v num">'+nz(src.f,9999)+'</div><div class="k">أعلى طابق</div></div></div>';
+  const mx=Math.max(1,...s.map(v=>nz(v,999)));
+  h+='<section class="panel"><div class="ptitle">القدرات</div>'+STATS.map((st,i)=>'<div class="statrow"><span class="n">'+st.name+'</span>'+bar(nz(s[i],999),Math.max(5,mx+1),st.c)+'<span class="lv num" style="color:'+st.c+'">'+nz(s[i],999)+'</span></div><div class="w" style="font-size:12px;color:var(--mute);margin:2px 0 0;padding-inline-start:80px">خبرة الأسبوع: '+nz(w[i],1e5)+'</div>').join('')+'</section>';
+  if(bs.length)h+='<section class="panel"><div class="ptitle">زعماء اتهزموا</div><ul class="log">'+bs.map(k=>{const e=EXAMS0.find(z=>z.id===k);return '<li><span>'+esc(e.title)+' · '+esc(e.sub.split(':')[0])+'</span></li>';}).join('')+'</ul></section>';
+  h+='<section class="panel"><div class="ptitle">مهارات اتقنها<span class="sp"></span><span class="side">'+N(sk.length+'/'+Object.keys(SKN).length)+'</span></div>'+(sk.length?'<ul class="log">'+sk.map(k=>'<li><span>'+esc(SKN[k].t)+'</span><span class="w">'+esc(SKT.find(b=>b.id===SKN[k].b).name)+'</span></li>').join('')+'</ul>':'<p class="hint" style="margin:0">لسه ما اتقنش مهارات.</p>')+'</section>';
+  if(ev.length)h+='<section class="panel"><div class="ptitle">آخر الإنجازات</div><ul class="log">'+ev.slice(0,8).map(e=>'<li><span>'+esc(String(e.l||'').slice(0,60))+'</span><span class="w">'+agoText(nz(e.ts,4e12))+'</span></li>').join('')+'</ul></section>';
+  if(rc&&(rc.w||rc.l))h+='<p class="hint">مبارزاتك ضده: '+N(rc.w)+' فوز، '+N(rc.l)+' خسارة</p>';
+  if(pid&&!isMe&&network()[pid])h+='<button class="btn fill block" data-act="pfduel" data-id="'+esc(pid)+'">بارزه بالكارت</button>';
+  if(!x)h+='<p class="hint">ده كارت متضاف بالكود، فبيانات الإنجازات مش ظاهرة.</p>';
+  h+='</div>';
+  pf.innerHTML=h;pf.classList.add('on');document.body.style.overflow='hidden';pf.scrollTop=0;
+}
+function closeProfile(){pf.classList.remove('on');pf.innerHTML='';document.body.style.overflow='';}
+
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act,id=b.dataset.id;
+  switch(a){
+    case 'srenter':enterRoom();break;
+    case 'srleave':leaveRoom();break;
+    case 'gfound':foundGuild();break;
+    case 'gjoin':joinGuild(id);break;
+    case 'gleave':leaveGuild();break;
+    case 'gkick':kick(id);break;
+    case 'graid':claimRaid();break;
+    case 'prof':openProfile(id||'',b.dataset.v||'');break;
+    case 'pfclose':closeProfile();break;
+    case 'pfduel':closeProfile();ui.tab='army';ui.armySub='net';startDuel(id);break;
+  }
+});
+document.addEventListener('input',ev=>{const t=ev.target;if(t.id==='gn')ui.gName=t.value;else if(t.id==='gt'){t.value=t.value.replace(/\s/g,'').toUpperCase();ui.gTag=t.value;}});
+render();
+})();
 </script>
 </body>
 </html>
