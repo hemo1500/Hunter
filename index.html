@@ -627,7 +627,7 @@ function migrate(){
   if(!Array.isArray(S.ledger))S.ledger=[];
   if(S.ledger.length>700)S.ledger=S.ledger.slice(-700);
   if(!S.sk||typeof S.sk!=='object')S.sk={};
-  gyInit();lnInit();rdInit();tcInit();mvInit();vdInit();gdInit();
+  gyInit();lnInit();rdInit();tcInit();mvInit();vdInit();gdInit();invInit();
   if(!S.qd||typeof S.qd!=='object')S.qd={};
   if(!S.army||typeof S.army!=='object')S.army=d.army;
   ['seen','log'].forEach(k=>{if(!Array.isArray(S.army[k]))S.army[k]=[];});
@@ -646,7 +646,7 @@ migrate();
 const ui={tab:'status',lgSort:'W',armySub:'tower',pvpPaste:'',showCode:false,duel:null,delF:null,qz:null,undoU:null,battle:null,sub:'gate',skBranch:'code',skOpen:null,skNote:'',lForm:false,lType:'out',lSub:'أكل',lAmt:'',lNote:'',lDay:0,lGoalEdit:false,lGoalVal:'',delL:null,moreL:false,open:null,addU:null,uText:'',addQ:false,edit:false,addR:false,editName:false,gStat:'study',gMins:25,abort:false,
   qTitle:'',qStat:'study',qXp:25,rTitle:'',rCost:'',day:dayKey()};
 let queue=[];
-ui.field='gym';ui.mn='ledger';ui.gd={on:false,c:null,i:0};ui.vd={f:'all',id:null,t0:0,form:false,fm:{}};ui.mv={f:{},gf:false,g:null,dg:null,df:false,dc:null,dd:null};ui.tcm=1;ui.tcAway=null;ui.tcPr=false;ui.rd={sid:null,w:null,last:null,tab:'books',view:'shelf',bk:null,f:{},fin:false,del:false,rc:null,qz:null};ui.ln={lang:'en',sub:'home',q:null,slow:false,mw:'',ma:'',me:''};
+ui.tcs='biz';ui.ivc=null;ui.xm={f:'all',sort:'new',sell:null,price:'',conf:null};ui.field='gym';ui.mn='ledger';ui.gd={on:false,c:null,i:0};ui.vd={f:'all',id:null,t0:0,form:false,fm:{}};ui.mv={f:{},gf:false,g:null,dg:null,df:false,dc:null,dd:null};ui.tcm=1;ui.tcAway=null;ui.tcPr=false;ui.rd={sid:null,w:null,last:null,tab:'books',view:'shelf',bk:null,f:{},fin:false,del:false,rc:null,qz:null};ui.ln={lang:'en',sub:'home',q:null,slow:false,mw:'',ma:'',me:''};
 ui.gy={sub:'today',ex:null,w:'',r:'',pl:'',bwv:'',setup:false,flash:0,metric:'w',m:{w:'',c:'',wa:'',ar:'',th:''}};
 
 /* ---------- derived ---------- */
@@ -908,6 +908,7 @@ function finishGate(){
   S.entries.push({id:uid(),day:dayKey(),ts:Date.now(),kind:'dungeon',stat:t.stat,xp,gold,label:'بوابة '+statName(t.stat)+' · '+t.mins+' دقيقة'});
   save();
   queue.push({k:'[ إشعار النظام ]',t:'تم إغلاق البوابة',b:'+'+xp,s:'خبرة في '+statName(t.stat)+' · +'+gold+' ذهب'});
+  ivGate(t.stat,t.mins);
   render();celebrate(before);
 }
 function tick(){
@@ -1193,8 +1194,8 @@ function monster(f){
   return {f,n:b.n+(tier?' '+tier:''),w:b.w,h:b.h,boss,p:Math.round(p)};
 }
 function effPower(m,pw){
-  const L=lvl(pw.T.s[m.w],needStat).l,bonus=0.04*(L-1);
-  return {p:Math.round(pw.total*(1+bonus)),bonus:Math.round(bonus*100),L};
+  const L=lvl(pw.T.s[m.w],needStat).l,bonus=0.04*(L-1),eq=ivEq(m),el=ivEl();
+  return {p:Math.round(pw.total*(1+bonus+eq+el)),bonus:Math.round(bonus*100),L,eq:Math.round(eq*100),el:Math.round(el*100)};
 }
 function monSvg(m,id){
   const h=m.h,body='hsl('+h+',32%,16%)',edge=m.boss?'#ff6b82':'hsl('+h+',70%,58%)',eye=m.boss?'#ff3355':'hsl('+h+',100%,70%)';
@@ -1228,9 +1229,10 @@ function fight(){
   S.army.log.push({f:m.f,win,d:dayKey(),p:e.p,mp:m.p});
   if(S.army.log.length>30)S.army.log=S.army.log.slice(-30);
   if(win){S.army.floor++;S.army.best=Math.max(S.army.best||0,m.f);}
+  const drops=win?ivLoot(m.f,m.boss,m.w):[];S.inv.el=0;
   save();
   const names=pw.list.slice(0,6).map(x=>x.name);
-  ui.battle={m,P:e.p,win,fP,fM,cP:100,cM:100,line:'بدأ القتال',done:false,names,need:m.p-e.p,adv:win?'':advice(m,pw,m.p-e.p)};
+  ui.battle={m,drops,P:e.p,win,fP,fM,cP:100,cM:100,line:'بدأ القتال',done:false,names,need:m.p-e.p,adv:win?'':advice(m,pw,m.p-e.p)};
   render();
   const rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   const R=rm?1:5;let k=0;
@@ -1246,6 +1248,7 @@ function fight(){
     if(k<R)setTimeout(stepf,rm?0:700);
     else setTimeout(()=>{b.done=true;if(ui.tab==='army')render();
       if(b.win&&b.m.boss)queue.push({k:'[ إشعار النظام ]',t:'سقط ملك الطابق',b:b.m.f,s:'وصلت لمنطقة جديدة في البرج'});
+      (b.drops||[]).forEach(it=>{if(it.r>=2)queue.push({k:'[ غنيمة ]',t:'وقع من '+b.m.n,b:itemName(it),s:RAR[it.r].n+' · '+itemDesc(it)});});
       showNext();},rm?0:600);
   };
   setTimeout(stepf,rm?0:500);
@@ -1270,7 +1273,7 @@ function vTower(){
       +'<div class="ftr"><div class="h"><span class="'+(b.m.boss?'mn boss':'')+'" style="font-size:14px">'+esc(b.m.n)+'</span><span class="num">'+b.m.p+'</span></div><div class="bar" style="--c:var(--bad)"><b id="hpM" style="width:'+Math.max(0,b.cM)+'%"></b></div></div>'
       +'<div class="blog" id="blog">'+esc(b.line)+'</div>';
     if(b.done){
-      h+=b.win?'<div class="res win"><div class="t">انتصار</div><p class="hint">وصلت للطابق '+N(b.m.f+1)+'</p></div>'
+      h+=b.win?'<div class="res win"><div class="t">انتصار</div><p class="hint">وصلت للطابق '+N(b.m.f+1)+'</p>'+((b.drops&&b.drops.length)?b.drops.map(it=>'<div class="proof" style="margin:8px 0 0;text-align:start;border-color:'+RAR[it.r].c+'"><b style="color:'+RAR[it.r].c+'">غنيمة: '+esc(itemName(it))+'</b><div class="w">'+RAR[it.r].n+' · '+esc(itemDesc(it))+'</div></div>').join(''):'<p class="hint">مفيش غنيمة المرة دي.</p>')+'</div>'
                :'<div class="res lose"><div class="t">هزيمة</div><p class="hint" style="text-align:start">'+b.adv+'</p></div>';
       h+='<button class="btn fill block" data-act="bdone">'+(b.win?'الوحش الجاي':'رجوع')+'</button>';
     }
@@ -1278,9 +1281,9 @@ function vTower(){
   }else{
     const ok=e.p>=m.p;
     h+='<div class="mon">'+monSvg(m,'')+'<div><div class="flo">الطابق '+N(m.f)+(m.boss?' · ملك الطابق':'')+'</div><div class="mn'+(m.boss?' boss':'')+'">'+esc(m.n)+'</div><div class="ed">قوته: '+N(m.p)+'</div><div class="ed">بيضعف قدام: '+SMAP[m.w].name+'</div></div></div>';
-    h+='<div class="brk"><div><span>قوتك الأساسية</span><b class="num">'+pw.total+'</b></div><div><span>ميزة '+SMAP[m.w].name+' (مستوى '+N(e.L)+')</span><b class="num">+'+e.bonus+'%</b></div><div><span>قوتك قدامه</span><b class="num" style="color:'+(ok?'var(--ok)':'var(--bad)')+'">'+e.p+'</b></div></div>';
+    h+='<div class="brk"><div><span>قوتك الأساسية</span><b class="num">'+pw.total+'</b></div><div><span>ميزة '+SMAP[m.w].name+' (مستوى '+N(e.L)+')</span><b class="num">+'+e.bonus+'%</b></div>'+((e.eq||e.el)?'<div><span>معداتك'+(e.el?' + إكسير':'')+'</span><b class="num">+'+(e.eq+e.el)+'%</b></div>':'')+'<div><span>قوتك قدامه</span><b class="num" style="color:'+(ok?'var(--ok)':'var(--bad)')+'">'+e.p+'</b></div></div>';
     h+='<div class="vd '+(ok?'ok':'no')+'">'+(ok?'قوتك كفاية تهزمه.':'الوحش أقوى منك بـ'+N(m.p-e.p)+' قوة. تقدر تحاول، بس النتيجة محسومة بقوتك.')+'</div>';
-    h+='<button class="btn fill block" data-act="fight">قاتل</button>';
+    h+='<button class="btn fill block" data-act="fight">قاتل</button><button class="btn block" data-act="ivgo" style="margin-top:8px">الحقيبة والمعدات ('+N(S.inv.it.length)+')</button>';
   }
   h+='</section>';
   h+='<section class="panel"><div class="ptitle">جيشك</div>';
@@ -3040,6 +3043,153 @@ function vRead(){
 }
 setInterval(()=>{try{const e=document.getElementById('rbtm');if(e&&S.rd&&S.rd.sess)e.textContent=rbFmt(Date.now()-S.rd.sess.t0);}catch(x){}},1000);
 
+/* ---------- loot: items that drop from tower monsters, inventory, equipment ---------- */
+const RAR=[{n:'عادي',c:'#9aa6b8'},{n:'نادر',c:'#5ec2ff'},{n:'ملحمي',c:'#b57bff'},{n:'أسطوري',c:'#f5c451'},{n:'خرافي',c:'#ff5d73'}];
+const RPRE=['','مصقول','ملحمي','أسطوري','خرافي'];
+const IK={
+  w:{n:'سلاح',v:['نصل','خنجر','فأس','رمح','قوس'],p:[3,6,10,16,25]},
+  a:{n:'درع',v:['درع','خوذة','قفازات','حذاء','عباءة'],p:[2,4,7,12,18]},
+  c:{n:'تميمة',v:['تميمة','خاتم','قلادة','ميدالية','عين'],p:[1,2,4,7,12],t:[5,10,20,35,60]},
+  e:{n:'إكسير',p:[10,20,30,45,70]},
+  t:{n:'ساعة التاجر',m:[1.5,2,3,5,10],d:[15,20,30,45,60]},
+  b:{n:'صندوق التاجر',min:[5,20,60,240,1000],fl:[200,2000,2e4,2e5,2e6]}
+};
+const IV_CAP=60;
+function invInit(){
+  if(!S.inv||typeof S.inv!=='object')S.inv={};
+  const I=S.inv;
+  if(!Array.isArray(I.it))I.it=[];
+  I.it=I.it.filter(x=>x&&typeof x==='object'&&typeof x.id==='string'&&['w','a','c','e','t','b'].includes(x.k)&&x.r>=0&&x.r<=4);
+  if(!I.eq||typeof I.eq!=='object')I.eq={w:'',a:'',c:''};
+  ['w','a','c'].forEach(k=>{if(typeof I.eq[k]!=='string')I.eq[k]='';});
+  if(!(I.el>=0))I.el=0;
+  if(!I.tb||typeof I.tb!=='object')I.tb={u:0,m:1};
+  ['got','paid'].forEach(k=>{if(!I[k]||typeof I[k]!=='object')I[k]={};});
+  ['sold','bought','found'].forEach(k=>{if(!(I[k]>=0))I[k]=0;});
+}
+function itemName(it){
+  const r=RPRE[it.r]?' '+RPRE[it.r]:'';
+  if(it.k==='e')return 'إكسير القوة'+r;
+  if(it.k==='t')return 'ساعة التاجر'+r;
+  if(it.k==='b')return 'صندوق التاجر'+r;
+  const st=SMAP[it.s]?SMAP[it.s].name:'';
+  return IK[it.k].v[(it.v||0)%5]+' '+st+r;
+}
+function itemDesc(it){
+  const d=IK[it.k],r=it.r;
+  if(it.k==='w'||it.k==='a')return '+'+d.p[r]+'% قوة في البرج (×1.5 قدام وحوش '+(SMAP[it.s]?SMAP[it.s].name:'')+')';
+  if(it.k==='c')return '+'+d.p[r]+'% قوة و +'+d.t[r]+'% دخل التاجر وهي لابساها';
+  if(it.k==='e')return 'تقوّيك +'+d.p[r]+'% في القتال الجاي بس';
+  if(it.k==='t')return 'دخل التاجر ×'+d.m[r]+' لمدة '+d.d[r]+' دقيقة';
+  return 'فلوس = دخل التاجر لمدة '+d.min[r]+' دقيقة';
+}
+function ivNpc(it){
+  const r=it.r,inc=Math.max(0,tcInc(Date.now()));
+  return Math.max([30,300,3000,3e4,3e5][r],Math.round(inc*60*[1,4,15,60,240][r]));
+}
+function ivFind(id){return S.inv.it.find(x=>x.id===id);}
+function ivWorn(id){const e=S.inv.eq;return e.w===id||e.a===id||e.c===id;}
+function ivEq(m){
+  let s=0;const I=S.inv;
+  ['w','a','c'].forEach(k=>{const it=ivFind(I.eq[k]);if(!it)return;s+=IK[k].p[it.r]/100*((m&&it.s===m.w)?1.5:1);});
+  return s;
+}
+function ivEl(){return S.inv.el>0?S.inv.el:0;}
+function ivTcMul(now){
+  const I=S.inv;let m=1;
+  const c=ivFind(I.eq.c);if(c)m+=IK.c.t[c.r]/100;
+  if(I.tb.u>now)m*=I.tb.m;
+  return m;
+}
+function ivAdd(it){
+  const I=S.inv;
+  if(I.it.length>=IV_CAP){S.tc.cash+=ivNpc(it);return false;}
+  I.it.push(it);return true;
+}
+function ivRoll(f,boss,gate){
+  const t=Math.min(8,Math.floor((f-1)/10)),u=Math.random();
+  let r=0;
+  if(gate){r=u<.03?2:u<.2?1:0;}
+  else{
+    const p4=boss?.01+.004*t:.002+.0008*t,p3=boss?.06+.01*t:.015+.004*t,p2=boss?.22:.08+.01*t,p1=boss?.6:.35+.02*t;
+    r=u<p4?4:u<p4+p3?3:u<p4+p3+p2?2:u<p4+p3+p2+p1?1:0;
+  }
+  const w=Math.random();
+  const k=w<.26?'w':w<.48?'a':w<.62?'c':w<.78?'e':w<.9?'t':'b';
+  return {k,r};
+}
+function ivMake(f,boss,stat,gate){
+  const x=ivRoll(f,boss,gate);
+  return {id:uid(),k:x.k,r:x.r,s:stat,v:Math.floor(Math.random()*5),f:gate?0:f};
+}
+function ivLoot(f,boss,stat){
+  const out=[];
+  if(Math.random()<(boss?1:.55))out.push(ivMake(f,boss,stat,false));
+  if(boss&&Math.random()<.5)out.push(ivMake(f,true,stat,false));
+  out.forEach(it=>{ivAdd(it);S.inv.found++;});
+  return out;
+}
+function ivGate(stat,mins){
+  if(Math.random()>=Math.min(.6,.15+mins/150))return;
+  const it=ivMake(1,false,stat,true);ivAdd(it);S.inv.found++;save();
+  queue.push({k:'[ غنيمة ]',t:'غنيمة من البوابة',b:itemName(it),s:RAR[it.r].n+' · '+itemDesc(it)});
+}
+function ivClick(a,id,v){
+  const I=S.inv,now=Date.now(),it=ivFind(id);
+  switch(a){
+    case 'ivgo':ui.tab='gym';ui.field='money';ui.mn='game';ui.tcs='inv';render();window.scrollTo(0,0);return;
+    case 'ivun':I.eq[id]='';save();render();return;
+    case 'ivuse':{
+      if(!it)return;
+      if(it.k==='w'||it.k==='a'||it.k==='c'){I.eq[it.k]=it.id;save();render();toast('لبست '+esc(itemName(it)));return;}
+      if(it.k==='e'){if(I.el>0){toast('عندك إكسير شغال للقتال الجاي');return;}I.el=IK.e.p[it.r]/100;}
+      else if(it.k==='t'){if(I.tb.u>now){toast('ساعة التاجر شغالة بالفعل');return;}I.tb={u:now+IK.t.d[it.r]*60000,m:IK.t.m[it.r]};}
+      else if(it.k==='b'){const g=Math.max(IK.b.fl[it.r],Math.round(tcInc(now)*60*IK.b.min[it.r]));S.tc.cash+=g;S.tc.life+=g;toast('الصندوق فيه <span class="g">+'+N(tcF(g))+'</span>');}
+      I.it=I.it.filter(x=>x.id!==id);save();render();
+      if(it.k!=='b')toast('اتفعّل: '+esc(itemName(it)));
+      return;
+    }
+    case 'ivnpc':{
+      if(!it||ivWorn(id)){toast('الغرض لابسه. اقلعه الأول');return;}
+      if(it.r>=2&&ui.ivc!==id){ui.ivc=id;toast('اضغط تاني لتأكيد البيع للتاجر');render();return;}
+      const g=ivNpc(it);S.tc.cash+=g;S.tc.life+=g;I.it=I.it.filter(x=>x.id!==id);ui.ivc=null;save();render();
+      toast('اتباع بـ <span class="g">'+N(tcF(g))+'</span>');return;
+    }
+    case 'ivlist':{
+      if(!it||ivWorn(id)){toast('الغرض لابسه. اقلعه الأول');return;}
+      ui.xm.sell=id;ui.xm.price='';ui.tcs='mk';render();window.scrollTo(0,0);return;
+    }
+  }
+}
+function ivRow(it,opt){
+  const worn=ivWorn(it.id),c=RAR[it.r].c;
+  let b='';
+  if(it.k==='w'||it.k==='a'||it.k==='c')b+='<button class="btn sm fill" data-act="ivuse" data-id="'+it.id+'"'+(worn?' disabled':'')+'>'+(worn?'لابسه':'البس')+'</button>';
+  else b+='<button class="btn sm fill" data-act="ivuse" data-id="'+it.id+'">'+(it.k==='b'?'افتح':'استخدم')+'</button>';
+  b+='<button class="btn sm" data-act="ivlist" data-id="'+it.id+'"'+(worn?' disabled':'')+'>اعرضه في السوق</button>';
+  b+='<button class="btn sm'+(ui.ivc===it.id?' bad':'')+'" data-act="ivnpc" data-id="'+it.id+'"'+(worn?' disabled':'')+'>'+(ui.ivc===it.id?'تأكيد: ':'بيع ')+N(tcF(ivNpc(it)))+'</button>';
+  return '<div class="tcr" style="align-items:flex-start;border-inline-start:3px solid '+c+';padding-inline-start:10px"><div><div class="nmx" style="color:'+c+'">'+esc(itemName(it))+'</div><div class="w">'+RAR[it.r].n+' · '+esc(itemDesc(it))+(it.f?' · من الطابق '+N(it.f):' · من بوابة')+'</div></div><div style="display:flex;flex-direction:column;gap:6px;min-width:112px">'+b+'</div></div>';
+}
+function vInv(){
+  const I=S.inv,now=Date.now(),m=monster(S.army.floor);
+  let h='<section class="panel"><div class="ptitle">معداتك<span class="sp"></span><span class="side num">+'+Math.round(ivEq(null)*100)+'% قوة</span></div>';
+  h+=['w','a','c'].map(k=>{
+    const it=ivFind(I.eq[k]);
+    return '<div class="tcr"><div><div class="nmx"'+(it?' style="color:'+RAR[it.r].c+'"':'')+'>'+(it?esc(itemName(it)):'فاضي: '+IK[k].n)+'</div><div class="w">'+(it?esc(itemDesc(it)):'اكسب '+IK[k].n+' من وحوش البرج أو اشتريه من السوق')+'</div></div>'+(it?'<button class="btn sm" data-act="ivun" data-id="'+k+'">اقلع</button>':'')+'</div>';
+  }).join('');
+  h+='<p class="hint" style="margin:10px 0 0">الطابق الجاي ('+N(m.f)+') ضعيف قدام: '+SMAP[m.w].name+'. المعدات الي من نفس النوع بتديك ×1.5.</p></section>';
+  const buf=[];
+  if(I.el>0)buf.push('إكسير للقتال الجاي: +'+Math.round(I.el*100)+'%');
+  if(I.tb.u>now)buf.push('ساعة التاجر ×'+I.tb.m+' · باقي '+Math.ceil((I.tb.u-now)/60000)+' دقيقة');
+  if(buf.length)h+='<section class="panel"><div class="ptitle">تأثيرات شغالة</div>'+buf.map(x=>'<div class="proof" style="margin:0 0 8px;border-color:var(--ok)">'+esc(x)+'</div>').join('')+'</section>';
+  const list=I.it.slice().sort((a,b)=>b.r-a.r||a.k.localeCompare(b.k));
+  h+='<section class="panel"><div class="ptitle">حقيبتك<span class="sp"></span><span class="side num">'+list.length+' / '+IV_CAP+'</span></div>';
+  if(!list.length)h+='<p class="hint" style="margin:0">الحقيبة فاضية. أغراض بتقع من وحوش البرج (ولو هزمت ملك الطابق بتقع أغراض أحسن)، وأحيانًا من البوابات اللي بتخلّصها.</p>';
+  else h+=list.map(ivRow).join('');
+  h+='<p class="hint">لو الحقيبة امتلت، أي غرض جديد بيتباع للتاجر تلقائي.</p></section>';
+  return h;
+}
+
 /* ---------- money game: merchant empire (just for fun, no XP) ---------- */
 const TCB=[
  {id:'ks',n:'كشك الحي',c:15,i:.1},{id:'bq',n:'بقالة',c:110,i:.9},{id:'cw',n:'مغسلة سيارات',c:1200,i:8},
@@ -3090,7 +3240,7 @@ function tcMult(id,now){
   if(now<t.bn.until)m*=2;
   return m;
 }
-function tcInc(now){let s=0;TCB.forEach(b=>{const n=S.tc.n[b.id]||0;if(n)s+=n*b.i*tcMult(b.id,now);});return s;}
+function tcInc(now){let s=0;TCB.forEach(b=>{const n=S.tc.n[b.id]||0;if(n)s+=n*b.i*tcMult(b.id,now);});return s*ivTcMul(now);}
 const tcCostK=(b,have,k)=>b.c*Math.pow(1.15,have)*(Math.pow(1.15,k)-1)/.15;
 function tcMax(b,have,cash){let k=0;while(k<2000&&tcCostK(b,have,k+1)<=cash)k++;return k;}
 function tcTick(){
@@ -3115,6 +3265,7 @@ function tcClick(a,id,v){
   const t=S.tc,now=Date.now();tcTick();
   switch(a){
     case 'tcsub':ui.mn=v;render();break;
+    case 'tcseg':ui.tcs=v;ui.xm.conf=null;ui.ivc=null;render();break;
     case 'tcaway':ui.tcAway=null;render();break;
     case 'tcmode':ui.tcm=v==='max'?'max':parseInt(v,10);render();break;
     case 'tcbuy':{const b=TCB.find(x=>x.id===id),have=t.n[id]||0;let k=ui.tcm==='max'?tcMax(b,have,t.cash):ui.tcm;if(k<1)k=1;const c=tcCostK(b,have,k);if(t.cash<c)break;t.cash-=c;t.n[id]=have+k;tcDay();t.cd.buy[id]=(t.cd.buy[id]||0)+k;save();render();break;}
@@ -3137,6 +3288,18 @@ function tcSpark(s,now){
   return '<svg viewBox="0 0 120 30" width="120" height="30" aria-hidden="true"><polyline fill="none" stroke="'+(pts[30]>=pts[29]?'var(--ok)':'var(--bad)')+'" stroke-width="1.6" points="'+pts.map((p,i)=>(i*4)+','+(28-(p-lo)/r*26)).join(' ')+'"/></svg>';
 }
 function vTc(){
+  const sg=[['biz','المشاريع'],['inv','الحقيبة ('+S.inv.it.length+')'],['mk','سوق اللاعبين']];
+  let h='<div class="seg" role="tablist" style="grid-template-columns:repeat(3,1fr)">'+sg.map(x=>'<button class="segb" role="tab" data-act="tcseg" data-v="'+x[0]+'" aria-pressed="'+(ui.tcs===x[0])+'">'+esc(x[1])+'</button>').join('')+'</div>';
+  if(ui.tcs==='inv'||ui.tcs==='mk'){
+    tcTick();
+    h+='<section class="panel" style="text-align:center"><div class="hint" style="margin:0">رصيدك في اللعبة</div><div class="num tccash" id="tccash" style="font-size:30px;font-weight:700;color:var(--gold)">'+tcF(S.tc.cash)+'</div></section>';
+    return h+(ui.tcs==='inv'?vInv():(window.vMarket?vMarket():'<section class="panel"><div class="ptitle">سوق اللاعبين</div><p class="hint" style="margin:0">السوق شغال في نسخة الموقع الأونلاين بس (الرابط اللي بتفتحه من الكروم).</p></section>'));
+  }
+  const I=S.inv,tn=Date.now();
+  if(I.tb.u>tn)h+='<div class="proof" style="margin:0 0 12px;border-color:var(--ok)"><b style="color:var(--ok)">ساعة التاجر شغالة</b> · دخلك ×'+I.tb.m+' · باقي '+N(Math.ceil((I.tb.u-tn)/60000))+' دقيقة</div>';
+  return h+vTcBiz();
+}
+function vTcBiz(){
   tcTick();const t=S.tc,now=Date.now(),inc=tcInc(now),ev=tcEv(now),mode=ui.tcm||1;
   let h='';
   if(ui.tcAway)h+='<button class="rdc" data-act="tcaway">غبت '+N(ui.tcAway.m)+' دقيقة والتجارة كسبت لك '+N(tcF(ui.tcAway.g))+' <span class="rdl">اضغط للإخفاء</span></button>';
@@ -3524,6 +3687,7 @@ document.addEventListener('click',ev=>{
   if(a.slice(0,2)==='rd'){rdClick(a,id,v);return;}
   if(a.slice(0,2)==='rb'){rbClick(a,id,v);return;}
   if(a.slice(0,2)==='tc'){tcClick(a,id,v);return;}
+  if(a.slice(0,2)==='iv'){ivClick(a,id,v);return;}
   if(a.slice(0,2)==='mv'){mvClick(a,id,v);return;}
   if(a.slice(0,2)==='vd'){vdClick(a,id,v);return;}
   if(a.slice(0,2)==='gd'){gdClick(a,id,v);return;}
@@ -3862,6 +4026,155 @@ document.addEventListener('click',ev=>{
 });
 document.addEventListener('input',ev=>{const t=ev.target;if(t.id==='gn')ui.gName=t.value;else if(t.id==='gt'){t.value=t.value.replace(/\s/g,'').toUpperCase();ui.gTag=t.value;}});
 render();
+})();
+</script>
+<script>
+/* Standalone-only: player-to-player market for loot. Uses the same Firebase connection as the network.
+   Listings live at mk/l/<id>; a buyer claims a listing by writing mk/l/<id>/b (first claim wins, enforced by rules). */
+(function(){
+"use strict";
+const H=window.HUNTER;
+if(!H||!H.db)return;
+const FEE=.05,MAXL=8,PMAX=1e15;
+const X={l:{},h:{},started:false,busy:{}};
+window.HX=X;
+const me=()=>H.db.uid(),isM=()=>H.state==='member';
+function active(){return ui.tab==='gym'&&ui.field==='money'&&ui.mn==='game'&&ui.tcs==='mk';}
+function typing(){const a=document.activeElement;return a&&a.id==='xmp';}
+function rr(){if(active()&&!typing()&&!document.querySelector('#ov.on'))render();}
+function start(){
+  if(X.started||!isM()||!me())return;X.started=true;
+  H.db.on('mk/l',v=>{X.l=v&&typeof v==='object'?v:{};reconcile();rr();});
+  H.db.on('mk/h',v=>{X.h=v&&typeof v==='object'?v:{};rr();});
+}
+H.onChange(start);setTimeout(start,1800);
+const nm=()=>String(S.name||'صياد').slice(0,20);
+function trim(o){const k=Object.keys(o);if(k.length>300)k.sort().slice(0,k.length-300).forEach(x=>delete o[x]);}
+function cleanItem(i){return {id:String(i.id||''),k:i.k,r:i.r|0,s:i.s,v:i.v|0,f:i.f|0};}
+function valid(i){return i&&typeof i==='object'&&['w','a','c','e','t','b'].includes(i.k)&&i.r>=0&&i.r<=4&&typeof i.id==='string';}
+/* settle finished trades on both sides; safe to run any number of times */
+function reconcile(){
+  const u=me(),I=S.inv;if(!u||!I||!S.tc)return;let ch=false;
+  Object.keys(X.l).forEach(lid=>{
+    const L=X.l[lid];if(!L||typeof L!=='object'||!L.b)return;
+    if(L.b.u===u&&!I.got[lid]&&!X.busy[lid]&&valid(L.i)){
+      I.got[lid]=1;ivAdd(cleanItem(L.i));S.tc.cash=Math.max(0,S.tc.cash-L.p);I.bought++;ch=true;
+      toast('وصلك '+esc(itemName(L.i)));
+      H.db.set('mk/l/'+lid+'/b/r',1).catch(()=>{});
+    }
+    if(L.s===u){
+      if(!I.paid[lid]){
+        I.paid[lid]=1;const g=Math.floor(L.p*(1-FEE));S.tc.cash+=g;S.tc.life+=g;I.sold++;ch=true;
+        queue.push({k:'[ سوق اللاعبين ]',t:'اتباع غرضك',b:'+'+tcF(g),s:itemName(L.i)+' · اشتراه '+(L.b.n||'لاعب')});
+      }
+      if(L.b.r===1&&I.paid[lid]&&!X.busy['d'+lid]){X.busy['d'+lid]=1;H.db.set('mk/l/'+lid,null).catch(()=>{});}
+    }
+  });
+  if(ch){trim(I.got);trim(I.paid);save();showNext();}
+}
+function parsePrice(s){
+  s=String(s||'').trim().toLowerCase().replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[,،\s]/g,'').replace('٫','.');
+  const m=/^(\d+(?:\.\d+)?)(k|m|b|t|qa)?$/.exec(s);if(!m)return NaN;
+  const mul={k:1e3,m:1e6,b:1e9,t:1e12,qa:1e15}[m[2]]||1;return Math.round(parseFloat(m[1])*mul);
+}
+function medianFor(k,r){
+  const a=Object.values(X.h).filter(x=>x&&x.k===k&&x.r===r&&x.p>0).sort((a,b)=>b.t-a.t).slice(0,9).map(x=>x.p).sort((a,b)=>a-b);
+  return a.length?a[Math.floor(a.length/2)]:0;
+}
+function refPrice(it){return medianFor(it.k,it.r)||ivNpc(it)*3;}
+async function listItem(){
+  const x=ui.xm,I=S.inv,it=ivFind(x.sell),price=parsePrice(x.price);
+  if(!it||ivWorn(it.id)){toast('الغرض مش متاح');x.sell=null;render();return;}
+  if(!(price>=1&&price<=PMAX)){toast('اكتب سعر صح، مثلًا 5000 أو 20K أو 3M');return;}
+  const mine=Object.values(X.l).filter(L=>L&&L.s===me()&&!L.b).length;
+  if(mine>=MAXL){toast('وصلت للحد الأقصى: '+MAXL+' عروض');return;}
+  const lid=H.db.key('mk/l'),L={s:me(),sn:nm(),p:price,t:Date.now(),i:cleanItem(it)};
+  I.it=I.it.filter(z=>z.id!==it.id);x.sell=null;x.price='';save();render();
+  try{await H.db.set('mk/l/'+lid,L);toast('اتعرض في السوق');}
+  catch(e){I.it.push(it);save();render();toast('مقدرتش أعرضه. لازم تحدّث قواعد Firebase (اقرا الإرشادات).');}
+}
+async function buy(lid){
+  const L=X.l[lid],I=S.inv;
+  if(!L||L.b||L.s===me()||!valid(L.i)){toast('العرض ده مبقاش متاح');return;}
+  if(S.tc.cash<L.p){toast('رصيدك مش كفاية');return;}
+  if(I.it.length>=60){toast('الحقيبة مليانة. بيع حاجة الأول');return;}
+  X.busy[lid]=1;I.got[lid]=1;ui.xm.conf=null;render();
+  try{await H.db.set('mk/l/'+lid+'/b',{u:me(),n:nm(),t:Date.now()});}
+  catch(e){delete I.got[lid];delete X.busy[lid];toast('اتباع لحد تاني قبلك أو اتلغى');render();return;}
+  S.tc.cash=Math.max(0,S.tc.cash-L.p);ivAdd(cleanItem(L.i));I.bought++;save();
+  delete X.busy[lid];render();
+  toast('اشتريت '+esc(itemName(L.i)));
+  H.db.set('mk/l/'+lid+'/b/r',1).catch(()=>{});
+  H.db.set('mk/h/'+lid,{k:L.i.k,r:L.i.r|0,s:L.i.s,p:L.p,bn:nm(),sn:L.sn||'',t:Date.now()}).catch(()=>{});
+}
+async function cancel(lid){
+  const L=X.l[lid];if(!L||L.s!==me())return;
+  if(L.b){toast('اتباع خلاص');return;}
+  try{await H.db.set('mk/l/'+lid,null);}catch(e){toast('اتباع قبل ما تلغيه');return;}
+  if(valid(L.i))ivAdd(cleanItem(L.i));save();render();toast('رجع الغرض لحقيبتك');
+}
+/* ---------- view ---------- */
+const KF=[['all','الكل'],['w','سلاح'],['a','درع'],['c','تميمة'],['x','استهلاكي']];
+const SO=[['new','الأحدث'],['cheap','الأرخص'],['pow','الأقوى'],['fit','يناسب طابقك']];
+function power(it){return it.k==='w'||it.k==='a'||it.k==='c'?IK[it.k].p[it.r]:0;}
+function card(lid,L,mine){
+  const it=L.i,c=RAR[it.r].c,m=monster(S.army.floor),fit=(it.k==='w'||it.k==='a'||it.k==='c')&&it.s===m.w;
+  const ref=refPrice(it),cheap=L.p<=ref*.8,age=Date.now()-(L.t||0);
+  let act='';
+  if(mine){act=L.b?'<span class="w" style="color:var(--ok)">اتباع</span>':'<button class="btn sm bad" data-act="xmcancel" data-id="'+esc(lid)+'">الغي</button>';}
+  else{const ok=S.tc.cash>=L.p;act='<button class="btn sm fill'+(ui.xm.conf===lid?' bad':'')+'" data-act="xmbuy" data-id="'+esc(lid)+'" data-cost="'+L.p+'"'+(ok?'':' disabled')+'>'+(ui.xm.conf===lid?'تأكيد الشراء':'اشتري')+'</button>';}
+  return '<div class="tcr" style="align-items:flex-start;border-inline-start:3px solid '+c+';padding-inline-start:10px"><div><div class="nmx" style="color:'+c+'">'+esc(itemName(it))+(fit?' <span class="gtag" style="margin:0">يناسب طابقك</span>':'')+'</div>'
+   +'<div class="w">'+RAR[it.r].n+' · '+esc(itemDesc(it))+'</div>'
+   +'<div class="w">'+(mine?'عرضك':'من '+esc(L.sn||'لاعب'))+' · '+(age>6048e5?'قديم':age>36e5?'من '+Math.floor(age/36e5)+' ساعة':'جديد')+(cheap&&!mine?' · <b style="color:var(--ok)">أرخص من المعتاد</b>':'')+'</div></div>'
+   +'<div style="text-align:center;min-width:104px"><div class="num" style="color:var(--gold);font-weight:700;margin-bottom:6px">'+tcF(L.p)+'</div>'+act+'</div></div>';
+}
+window.vMarket=function(){
+  if(window.FIREBASE_MISSING)return '<section class="panel"><p class="hint" style="margin:0">إعدادات Firebase ناقصة.</p></section>';
+  if(!isM())return '<section class="panel"><div class="ptitle">سوق اللاعبين</div><p style="margin:0">السوق مفتوح لأعضاء الشبكة بس. ادخل كود الدخول من تبويب الجيش ثم الشبكة وارجع هنا.</p></section>';
+  start();
+  const x=ui.xm,u=me(),I=S.inv;let h='';
+  if(x.sell){
+    const it=ivFind(x.sell);
+    if(it){
+      const ref=refPrice(it);
+      h+='<section class="panel"><div class="ptitle">اعرض في السوق</div><div class="nmx" style="color:'+RAR[it.r].c+'">'+esc(itemName(it))+'</div><div class="w">'+esc(itemDesc(it))+'</div>'
+       +'<p class="hint">السعر المعتاد: <b class="num" style="color:var(--gold)">'+tcF(ref)+'</b>'+(medianFor(it.k,it.r)?' (من آخر صفقات)':' (تقدير)')+' · عمولة السوق '+Math.round(FEE*100)+'%</p>'
+       +'<label class="lbl" for="xmp" style="margin-top:0">السعر (اكتب 5000 أو 20K أو 3M أو 2B)</label><input class="in lt" id="xmp" inputmode="text" autocomplete="off" value="'+esc(x.price||tcF(ref).replace(/\s/g,''))+'">'
+       +'<div class="row" style="margin-top:12px"><button class="btn fill" data-act="xmconfirm" style="flex:1">اعرض</button><button class="btn" data-act="xmcancelsell" style="flex:1">إلغاء</button></div></section>';
+    }else x.sell=null;
+  }
+  const all=Object.keys(X.l).map(k=>[k,X.l[k]]).filter(a=>a[1]&&typeof a[1]==='object'&&valid(a[1].i)&&a[1].p>0);
+  const mine=all.filter(a=>a[1].s===u).sort((a,b)=>b[1].t-a[1].t);
+  const oth=all.filter(a=>a[1].s!==u&&!a[1].b);
+  h+='<section class="panel"><div class="ptitle">سوق اللاعبين<span class="sp"></span><span class="side num">'+oth.length+' عرض</span></div>'
+   +'<p class="hint" style="margin:0 0 10px">غنايم البرج بتتباع هنا بين اللاعبين: الصيادين بيجيبوها، والتجار بيشتروها بفلوسهم. أنت بعت '+N(I.sold)+' واشتريت '+N(I.bought)+'.</p>'
+   +'<div class="chips" style="margin-bottom:8px">'+KF.map(f=>'<button class="chip" data-act="xmf" data-v="'+f[0]+'" aria-pressed="'+(x.f===f[0])+'">'+f[1]+'</button>').join('')+'</div>'
+   +'<div class="chips" style="margin-bottom:6px">'+SO.map(f=>'<button class="chip" data-act="xmsort" data-v="'+f[0]+'" aria-pressed="'+(x.sort===f[0])+'">'+f[1]+'</button>').join('')+'</div>';
+  let list=oth.filter(a=>x.f==='all'||(x.f==='x'?['e','t','b'].includes(a[1].i.k):a[1].i.k===x.f));
+  const m=monster(S.army.floor);
+  list.sort((a,b)=>x.sort==='cheap'?a[1].p-b[1].p:x.sort==='pow'?power(b[1].i)-power(a[1].i)||b[1].i.r-a[1].i.r:x.sort==='fit'?((b[1].i.s===m.w)-(a[1].i.s===m.w))||b[1].i.r-a[1].i.r:b[1].t-a[1].t);
+  h+=list.length?list.map(a=>card(a[0],a[1],false)).join(''):'<p class="hint">مفيش عروض هنا دلوقتي. اعرض أنت أول غرض.</p>';
+  h+='</section>';
+  h+='<section class="panel"><div class="ptitle">عروضي<span class="sp"></span><span class="side num">'+mine.filter(a=>!a[1].b).length+' / '+MAXL+'</span></div>'+(mine.length?mine.map(a=>card(a[0],a[1],true)).join(''):'<p class="hint" style="margin:0">ما عرضتش حاجة. افتح الحقيبة واختار "اعرضه في السوق".</p>')
+   +'<button class="btn block" data-act="tcseg" data-v="inv" style="margin-top:10px">افتح الحقيبة</button></section>';
+  const hist=Object.values(X.h).filter(z=>z&&z.p>0&&['w','a','c','e','t','b'].includes(z.k)&&z.r>=0&&z.r<=4).sort((a,b)=>b.t-a.t).slice(0,10);
+  if(hist.length)h+='<section class="panel"><div class="ptitle">آخر الصفقات</div>'+hist.map(z=>'<div class="tcr"><div><div class="nmx" style="color:'+RAR[z.r].c+'">'+esc(itemName(z))+'</div><div class="w">'+esc(z.bn||'لاعب')+' اشترى من '+esc(z.sn||'لاعب')+'</div></div><span class="num" style="color:var(--gold);font-weight:700">'+tcF(z.p)+'</span></div>').join('')+'</section>';
+  return h;
+};
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act;if(a.slice(0,2)!=='xm')return;
+  const id=b.dataset.id,v=b.dataset.v,x=ui.xm;
+  switch(a){
+    case 'xmf':x.f=v;render();break;
+    case 'xmsort':x.sort=v;render();break;
+    case 'xmbuy':if(x.conf===id)buy(id);else{x.conf=id;toast('اضغط تاني لتأكيد الشراء');render();}break;
+    case 'xmconfirm':listItem();break;
+    case 'xmcancelsell':x.sell=null;render();break;
+    case 'xmcancel':cancel(id);break;
+  }
+});
+document.addEventListener('input',ev=>{const t=ev.target;if(t&&t.id==='xmp')ui.xm.price=t.value;});
 })();
 </script>
 </body>
