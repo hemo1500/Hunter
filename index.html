@@ -297,7 +297,7 @@ textarea.lt{direction:ltr;text-align:left}
 .pip.w{background:var(--bad);border-color:var(--bad)}
 .feed li{font-size:14px}
 .tabs{position:fixed;inset-inline:0;bottom:0;z-index:20;background:rgba(5,9,20,.92);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
-.tabs div{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
+.tabs div{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
 .tab{background:none;border:0;padding:9px 2px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--mute);font-size:11px;position:relative;min-height:56px}
 .tab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round}
 .tab[aria-selected="true"]{color:var(--glow);text-shadow:0 0 10px rgba(94,194,255,.5)}
@@ -339,7 +339,8 @@ textarea.lt{direction:ltr;text-align:left}
 .gyin{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .gyin.one{grid-template-columns:1fr}
 .lnans{min-height:46px;border:1px dashed var(--line);border-radius:3px;padding:8px;display:flex;flex-wrap:wrap;gap:6px}
-.seg.s3{grid-template-columns:repeat(3,1fr)}
+.tcr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed rgba(94,194,255,.18)}
+.seg.s3{grid-template-columns:repeat(3,1fr)}.seg.s4{grid-template-columns:repeat(4,1fr)}.seg.s4 .segb{font-size:13px;padding:0 2px}
 .rdt p{line-height:1.95;font-size:16px;margin:0 0 12px}
 .rdcs{display:grid;gap:10px;margin-top:6px}
 .rdc{display:block;width:100%;text-align:start;padding:12px 14px;border:1px solid var(--line);background:rgba(10,18,38,.7);color:inherit;font:inherit;font-size:15px;line-height:1.6;border-radius:3px;cursor:pointer}
@@ -347,6 +348,16 @@ textarea.lt{direction:ltr;text-align:left}
 .rdc.lock{opacity:.5;cursor:not-allowed}
 .rdl{display:block;font-size:12px;color:var(--gold);margin-top:2px}
 .rdw{background:none;border:0;border-bottom:1px dashed var(--glow);color:var(--glow);font:inherit;padding:0;cursor:pointer}
+.rbshelf{display:flex;align-items:flex-end;gap:5px;padding:14px 10px 0;border-bottom:7px solid #26304d;background:linear-gradient(180deg,rgba(94,194,255,.03),rgba(94,194,255,.08));margin-bottom:12px;min-height:130px;border-radius:3px 3px 0 0;overflow:hidden}
+.rbk{writing-mode:vertical-rl;background:linear-gradient(90deg,hsl(var(--h) 45% 30%),hsl(var(--h) 45% 19%));border:1px solid hsl(var(--h) 55% 48%);border-bottom:0;border-radius:3px 3px 0 0;color:#fff;font:inherit;font-size:11px;font-weight:600;padding:8px 2px;overflow:hidden;cursor:pointer;text-align:center;transition:transform .15s}
+.rbk span{display:block;max-height:100%;overflow:hidden}
+.rbk:active{transform:translateY(-6px)}
+.rbk.now{box-shadow:0 0 12px hsl(var(--h) 85% 60%/.65)}
+.rbk.fin{border-top:5px solid var(--gold);box-shadow:0 0 14px rgba(245,196,81,.55)}
+.rbtm{font-size:34px;font-weight:700;text-align:center;color:var(--glow);margin:6px 0;direction:ltr;text-shadow:0 0 14px rgba(94,194,255,.5)}
+.rbch{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px dashed rgba(94,194,255,.18);font-size:14px}
+.rbch.done{color:var(--ok);display:block}.rbch summary{cursor:pointer}
+.rbbars{display:flex;align-items:flex-end;gap:4px;height:64px}.rbbars i{flex:1;background:rgba(94,194,255,.2);border-radius:2px 2px 0 0}.rbbars i.on{background:var(--glow)}
 .seg.s5{grid-template-columns:repeat(5,1fr)}.seg.s5 .segb{font-size:13px;padding:0 2px}
 </style>
 </head>
@@ -530,8 +541,7 @@ const TABS=[
   {id:'quests',name:'البوابة',svg:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8.5 12.2l2.5 2.5 4.5-5"/>'},
   {id:'exams',name:'امتحانات',svg:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'},
   {id:'gym',name:'المجالات',svg:'<path d="M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12"/>'},
-  {id:'army',name:'الظلال',svg:'<path d="M12 3c-3 0-5 2.4-5 5.5 0 2 .9 3.5 2.2 4.4L8 21h8l-1.2-8.1C16.1 12 17 10.5 17 8.5 17 5.4 15 3 12 3z"/><path d="M10 8.6h.01M14 8.6h.01"/>'},
-  {id:'money',name:'الفلوس',svg:'<rect x="3.5" y="6.5" width="17" height="12" rx="2"/><path d="M3.5 10h17M16 14.2h1.8"/>'}
+  {id:'army',name:'الظلال',svg:'<path d="M12 3c-3 0-5 2.4-5 5.5 0 2 .9 3.5 2.2 4.4L8 21h8l-1.2-8.1C16.1 12 17 10.5 17 8.5 17 5.4 15 3 12 3z"/><path d="M10 8.6h.01M14 8.6h.01"/>'}
 ];
 const COIN='<svg class="coin" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#f5c451"/><circle cx="12" cy="12" r="7" fill="none" stroke="#a8791a" stroke-width="1.6"/><path d="M12 8v8" stroke="#a8791a" stroke-width="1.8" stroke-linecap="round"/></svg>';
 const CHECK='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -607,7 +617,7 @@ function migrate(){
   if(!Array.isArray(S.ledger))S.ledger=[];
   if(S.ledger.length>700)S.ledger=S.ledger.slice(-700);
   if(!S.sk||typeof S.sk!=='object')S.sk={};
-  gyInit();lnInit();rdInit();
+  gyInit();lnInit();rdInit();tcInit();mvInit();
   if(!S.qd||typeof S.qd!=='object')S.qd={};
   if(!S.army||typeof S.army!=='object')S.army=d.army;
   ['seen','log'].forEach(k=>{if(!Array.isArray(S.army[k]))S.army[k]=[];});
@@ -626,7 +636,7 @@ migrate();
 const ui={tab:'status',lgSort:'W',armySub:'tower',pvpPaste:'',showCode:false,duel:null,delF:null,qz:null,undoU:null,battle:null,sub:'gate',skBranch:'code',skOpen:null,skNote:'',lForm:false,lType:'out',lSub:'أكل',lAmt:'',lNote:'',lDay:0,lGoalEdit:false,lGoalVal:'',delL:null,moreL:false,open:null,addU:null,uText:'',addQ:false,edit:false,addR:false,editName:false,gStat:'study',gMins:25,abort:false,
   qTitle:'',qStat:'study',qXp:25,rTitle:'',rCost:'',day:dayKey()};
 let queue=[];
-ui.field='gym';ui.rd={sid:null,w:null,last:null};ui.ln={lang:'en',sub:'home',q:null,slow:false,mw:'',ma:'',me:''};
+ui.field='gym';ui.mn='ledger';ui.mv={f:{},gf:false,g:null,dg:null,df:false,dc:null,dd:null};ui.tcm=1;ui.tcAway=null;ui.tcPr=false;ui.rd={sid:null,w:null,last:null,tab:'books',view:'shelf',bk:null,f:{},fin:false,del:false,rc:null,qz:null};ui.ln={lang:'en',sub:'home',q:null,slow:false,mw:'',ma:'',me:''};
 ui.gy={sub:'today',ex:null,w:'',r:'',pl:'',bwv:'',setup:false,flash:0,metric:'w',m:{w:'',c:'',wa:'',ar:'',th:''}};
 
 /* ---------- derived ---------- */
@@ -1068,7 +1078,7 @@ function vMoney(){
   const mk=dayKey().slice(0,7),m=ledgerSum(mk);
   let mn='';try{mn=new Date().toLocaleDateString('ar-EG',{month:'long'});}catch(e){}
   const saveAll=m.save+m.inv,left=m.in-m.out-saveAll;
-  let h='<div class="qhead"><div><h2>دفتر الفلوس</h2><div class="date">شهر '+esc(mn)+' · بالجنيه</div></div></div>';
+  let h='<div class="qhead"><div><h2>دفتر المال</h2><div class="date">شهر '+esc(mn)+' · بالجنيه</div></div></div>';
   if(ui.lForm){
     h+='<section class="panel"><div class="ptitle">عملية جديدة</div><span class="lbl" style="margin-top:0">النوع</span><div class="chips">'+Object.keys(LT).map(k=>'<button class="chip" data-act="ltype" data-v="'+k+'" aria-pressed="'+(ui.lType===k)+'">'+LT[k]+'</button>').join('')+'</div>';
     h+='<span class="lbl">التصنيف</span><div class="chips">'+LSUB[ui.lType].map(x=>'<button class="chip" data-act="lsub" data-v="'+x+'" aria-pressed="'+(ui.lSub===x)+'">'+x+'</button>').join('')+'</div>';
@@ -1144,6 +1154,8 @@ function shadows(){
   });
   Object.keys(GX).forEach(x=>{const rk=gyRank(x,gyBest(x).v);for(let r=2;r<=rk;r++)out.push({id:'gy_'+x+'_'+r,name:'حارس '+GX[x].n,p:[0,0,40,70,110,170][r],src:'رتبة '+ERK[r]+' في '+GX[x].n});});
   {const lm=lnMast();for(let k=1;k<=Math.floor(lm/20);k++)out.push({id:'ln_'+k,name:'حارس الكلمات '+k,p:Math.min(120,15+k*10),src:(k*20)+' كلمة متثبتة في الإنجليزي'});}
+  S.mv.goals.forEach(g=>{if(g.done)out.push({id:'mg_'+g.id,name:'ظل '+g.n,p:40,src:'حققت هدف ادخار'});});
+  S.rd.bk.forEach(b=>{if(b.boss)out.push({id:'bk_'+b.id,name:'ظل '+b.t,p:50,src:'هزمت زعيم الكتاب'});});
   STORIES.forEach(st=>{if(rdFound(st)===rdEnds(st).length)out.push({id:'st_'+st.id,name:'ظل '+st.t,p:60,src:'فتحت كل نهايات القصة'});});
   const bs=bestStreak();
   [[7,60],[14,100],[30,180],[60,240]].forEach(x=>{if(bs>=x[0])out.push({id:'sr_'+x[0],name:'حارس السلسلة',p:x[1],src:x[0]+' يوم متتالي'});});
@@ -1542,7 +1554,7 @@ function rerenderOnline(){
 }
 function schedLeague(){clearTimeout(lgT);lgT=setTimeout(()=>{pubLeague();lobbyPresence();},4000);schedHub();}
 function myEvents(){return S.entries.filter(e=>['boss','skill','dungeon'].includes(e.kind)).slice(-5).map(e=>({l:String(e.label||'').slice(0,60),ts:e.ts||0}));}
-function leagueDoc(){const c=myCard();return {bs:EXAMS0.filter(e=>bossBeaten(e.id)).map(e=>e.id),id:ctx.uid,pid:S.pvp.me,s:c.s,L:c.L,a:c.a,f:c.f,n:c.n,W:c.W,w:c.w,P:c.P,R:c.R,L:c.L,k:c.k,a:c.a,f:c.f,elo:S.pvp.elo,dw:S.pvp.dw,dl:S.pvp.dl,ev:myEvents(),gy:gymStats(),ln:lnStats()};}
+function leagueDoc(){const c=myCard();return {bs:EXAMS0.filter(e=>bossBeaten(e.id)).map(e=>e.id),id:ctx.uid,pid:S.pvp.me,s:c.s,L:c.L,a:c.a,f:c.f,n:c.n,W:c.W,w:c.w,P:c.P,R:c.R,L:c.L,k:c.k,a:c.a,f:c.f,elo:S.pvp.elo,dw:S.pvp.dw,dl:S.pvp.dl,ev:myEvents(),gy:gymStats(),ln:lnStats(),rd:rbStats(),tc:tcStats()};}
 async function pubLeague(){
   if(!ctx.db||!ctx.uid||live.ro)return;
   const d=leagueDoc(),j=JSON.stringify(d);if(j===lgLast)return;
@@ -1910,7 +1922,7 @@ function vNet(){
 
 function render(){
   const y=window.scrollY;
-  const f={status:vStatus,quests:vPlay,exams:vExams,gym:vFields,army:vArmy,money:vMoney}[ui.tab];
+  const f={status:vStatus,quests:vPlay,exams:vExams,gym:vFields,army:vArmy}[ui.tab];
   $('#view').innerHTML=f();
   $('#tabs').innerHTML=TABS.map(t=>'<button class="tab" role="tab" data-act="tab" data-tab="'+t.id+'" aria-selected="'+(ui.tab===t.id)+'"><svg viewBox="0 0 24 24" aria-hidden="true">'+t.svg+'</svg><span>'+t.name+'</span></button>').join('');
   try{$('#date').textContent=new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});}catch(e){}
@@ -2680,9 +2692,9 @@ function vLang(){
 function vFields(){
   if(ui.field==='gym'&&ui.gy.ex)return vGym();
   if(ui.field==='read'&&ui.rd.sid)return vRead();
-  const f=[['gym','الجيم'],['lang','اللغات'],['read','القراءة']];
-  const h='<div class="seg s3" role="tablist">'+f.map(x=>'<button class="segb" role="tab" data-act="gyfld" data-v="'+x[0]+'" aria-pressed="'+(ui.field===x[0])+'">'+x[1]+'</button>').join('')+'</div>';
-  return h+(ui.field==='lang'?vLang():ui.field==='read'?vRead():vGym());
+  const f=[['gym','الجيم'],['lang','اللغات'],['read','القراءة'],['money','المال']];
+  const h='<div class="seg s4" role="tablist">'+f.map(x=>'<button class="segb" role="tab" data-act="gyfld" data-v="'+x[0]+'" aria-pressed="'+(ui.field===x[0])+'">'+x[1]+'</button>').join('')+'</div>';
+  return h+(ui.field==='lang'?vLang():ui.field==='read'?vRead():ui.field==='money'?vMoneyHub():vGym());
 }
 
 const STORIES=[{"id":"nt","t":"ليلة النوبتجية","d":"مناوبة ليلية في استقبال النساء والتوليد. قراراتك الطبية بتحدد مين هيخرج سليم.","s":"study","l":"ar","n":{"s":{"t":["الساعة ١١ بالليل. أنت طالب الامتياز المناوب في استقبال النساء والتوليد، والممرضة سلوى بتناديك بسرعة.","سيدة عندها ٢٨ سنة، حامل في الأسبوع ٣٦، جت مع زوجها بتشتكي من صداع شديد وزغللة في نظرها. وشها منفّخ شوية وهي ماسكة راسها."],"c":[{"l":"أسألها عن التاريخ المرضي الأول","n":"hx"},{"l":"أقيس الضغط حالًا","n":"bp"},{"l":"أطلب الاستشاري من أول لحظة","n":"call"}]},"hx":{"t":["تسألها: \"الصداع بدأ من إمتى؟\" تقول: \"من ست ساعات، ومعاه وجع تحت ضلوعي من ناحية اليمين.\" وتقول إن ورم رجليها زاد في الأسبوع الأخير، ومحدش قاس ضغطها من أسبوعين.","الوجع في أعلى البطن مع الصداع علامة ليها وزن."],"c":[{"l":"دلوقتي أقيس الضغط","n":"bp","s":["hx"]}]},"call":{"t":["تتصل بالاستشاري د. هاني. بيرد وهو في وسط عملية قيصرية: \"الضغط كام؟ فيه تشنجات؟ فيه تحاليل؟\" وأنت ما عندكش ولا معلومة.","بيقفل وهو بيقولك: \"جمّع المعلومات وكلمني تاني.\""],"c":[{"l":"أرجع للمريضة وأقيس الضغط","n":"bp","s":["called"]}]},"bp":{"t":["الجهاز بيقرا ١٧٠ على ١١٠. تعيد القياس بعد خمس دقايق: ١٧٥ على ١١٥. ده ضغط شديد الارتفاع.","الزوج بيسألك بصوت مكسور: \"هي هتبقى كويسة؟\""],"c":[{"l":"أديها مسكن صداع وأخليها ترتاح ساعة وأعيد القياس","n":"rest"},{"l":"أطلب تحليل بول وصورة دم ووظائف كبد وصفائح","n":"labs","s":["labs"]},{"l":"أبدأ سلفات الماغنسيوم فورًا من غير تحاليل","n":"mg","s":["mg"]},{"l":"أديها خافض ضغط وريدي بجرعة كبيرة عشان ينزل بسرعة","n":"drop"},{"l":"أشخّص تسمم حمل شديد وأبدأ البروتوكول كامل في وقت واحد","n":"full","st":["study",150]}]},"full":{"t":["تتحرك بسرعة وبهدوء: تفتح وريدين، وتبعت التحاليل، وتبدأ تحميل الماغنسيوم، وتعطي خافض ضغط مناسب بجرعة محسوبة. سلوى بتبصلك بإعجاب: \"إنت ماشي زي الاستشاري.\""],"c":[{"l":"أتصل بالاستشاري وأبلغه بالتفاصيل","n":"sbar","s":["labs","mg"]}]},"rest":{"t":["تديها باراسيتامول وتسيبها ترتاح. بعد أربعين دقيقة تسمع صراخ من الأوضة. المريضة بتتشنج، عينيها مقلوبة وجسمها كله بيهتز.","ده تشنج حمل. المسكن ما منعش اللي بيحصل."],"c":[{"l":"أنده المساعدة وأحطها على جنبها الأيسر وأحمي مجرى الهواء","n":"seiz"}]},"drop":{"t":["تديها خافض الضغط وريدي بجرعة كبيرة عشان \"تخلّص الموضوع\". بعد عشر دقايق الضغط ينزل لـ ٩٠ على ٥٠، والمريضة بتدوخ، وجهاز قلب الجنين بيبطّأ.","النزول السريع قلّل الدم الرايح للمشيمة."],"c":[{"l":"أوقف الدواء وأرفع رجليها وأعطي سوايل وأنده الاستشاري","n":"sbar","s":["late"]},{"l":"أستنى وأشوف هيحصل إيه","n":"e_bad2"}]},"seiz":{"t":["بمساعدة سلوى تحميها من الوقوع وتحط الأكسجين. التشنج بيقف بعد دقيقة. تفتح الوريد. د. هاني وصل أخيرًا، والمريضة فاقت وهي مش فاكرة حاجة."],"c":[{"l":"أعطي أربع جرامات سلفات ماغنسيوم تحميل وأبلغه بكل التفاصيل","n":"deliv","s":["mg","called"]}]},"labs":{"t":["النتايج بتيجي بعد نص ساعة: بروتين في البول ٣+، الصفائح ٩٠ ألف، أنزيمات الكبد مرتفعة جدًا. ده مش تسمم حمل عادي، فيه اشتباه في متلازمة هيلب.","الضغط لسه مرتفع."],"c":[{"l":"أبلّغ الاستشاري بشكل منظم: الحالة، الخلفية، التقييم، التوصية","n":"sbar","s":["sbar"]},{"l":"أبدأ الماغنسيوم وأستنى الاستشاري","n":"mg","s":["mg"]}]},"mg":{"t":["تبدأ تحميل ٤ جرام سلفات ماغنسيوم وريدي على ١٥ دقيقة، وبعدها جرام في الساعة. وتعلّق جنب السرير ورقة: المنعكسات والتنفس والبول.","بعد ساعتين تلاحظ إن المنعكس الركبي بدأ يختفي، والتنفس نزل لـ ١٠ في الدقيقة."],"c":[{"l":"أوقف التسريب فورًا وأجهّز جلوكونات الكالسيوم","n":"mgfix"},{"l":"أكمل التسريب لأن المريضة هادية","n":"e_bad3"}]},"mgfix":{"t":["أوقفت التسريب وأعطيت الكالسيوم، والتنفس رجع ١٤. وقفت تسمم بالماغنسيوم قبل ما يتطور. ده درس كل نوبتجي لازم يعرفه."],"c":[{"l":"أبلّغ الاستشاري وأكمل","n":"sbar","s":["mgsafe"]}]},"sbar":{"t":["تتصل بـ د. هاني وتقول بشكل مرتب: \"سيدة ٢٨ سنة، حمل ٣٦ أسبوع، ضغط ١٧٥ على ١١٥، صداع وألم أعلى البطن، الماغنسيوم شغّال.\" بيرد: \"جاي حالًا. جهّزوا غرفة العمليات.\""],"c":[{"l":"أجهّز الأوراق وموافقة المريضة وأتواصل مع التخدير","n":"deliv"}]},"deliv":{"t":["د. هاني قرر ولادة قيصرية بعد استقرار الحالة. فريق التخدير على الخط: \"عندكم تحليل صفائح؟\""],"c":[{"l":"أرد: \"الصفائح ٩٠ ألف\"","n":"anes","r":["labs"]},{"l":"أرد: \"لسه ما عملناش تحاليل\"","n":"e_late","x":["labs"]}]},"anes":{"t":["فريق التخدير يقرر تخدير عام بدل النصفي بسبب الصفائح المنخفضة."],"c":[{"l":"أسأل: \"نطلب تحليل تخثر وفصيلة دم ونجهّز صفائح لو لزم؟\"","n":"spec","st":["study",200]},{"l":"أرافق المريضة لغرفة العمليات","n":"e_ok"}]},"spec":{"t":["د. هاني يبتسم: \"شكلك قريت.\" الفريق يجهز دم وصفائح قبل الشق. أثناء العملية يحصل نزيف أكتر من المعتاد، لكنه متحكم فيه لأن كل حاجة كانت جاهزة."],"c":[{"l":"أكمل للنهاية","n":"e_secret"}]},"e_ok":{"t":["تولد المريضة طفلة صغيرة بصحة كويسة. الأم تقضي ليلة في العناية وبعدها تتحسن. الزوج بيبكي ويشكرك قدام الجميع."],"c":[],"e":["good","ولادة آمنة"]},"e_secret":{"t":["الأم والطفلة بخير، والاستشاري بيكتب في تقييمك: \"يعتمد عليه.\" حتى سلوى بتعمل لك كوباية شاي من غير ما تتطلب."],"c":[],"e":["secret","الاستباق"]},"e_late":{"t":["تتأخر التحاليل ويتأخر قرار التخدير. الولادة تتم في آخر لحظة بتخدير عام، والطفل يحتاج حضّانة. الأم تتعافى ببطء، وتفهم إن التحاليل بدري كانت هتوفّر ساعات."],"c":[],"e":["neutral","نجاة بتكلفة"]},"e_bad2":{"t":["ضغط الجنين يتأثر وتحتاج قيصرية طارئة. الطفل في الحضّانة والأم تتعافى ببطء. الدرس: خفض الضغط في تسمم الحمل لازم يكون تدريجي ومحسوب."],"c":[],"e":["bad","النزول السريع"]},"e_bad3":{"t":["بعد نص ساعة تتوقف المريضة عن التنفس. تنادي الفريق والإنعاش يبدأ. تنجو في آخر لحظة، لكن الليلة بتبقى أطول ليلة في حياتك. مراقبة المنعكسات والتنفس مش اختيار."],"c":[],"e":["bad","تسمم بالماغنسيوم"]}}},{"id":"ex","t":"صباح الامتحان","d":"الساعة خمسة ونص الفجر، والامتحان الساعة تسعة. كل قرار بيحدد شكل ورقتك.","s":"study","l":"ar","n":{"s":{"t":["منبّه الموبايل بيرن. الساعة ٥:٣٠ الفجر. نمت ٣ ساعات بس بعد مذاكرة طويلة، وامتحان التوليد الساعة ٩.","جسمك تقيل، وفيه صوت جواك بيقولك: \"كفاية، اللي اتذاكر اتذاكر.\""],"c":[{"l":"أقوم فورًا وأغسل وشي وأراجع","n":"rev"},{"l":"أنام عشرين دقيقة زيادة","n":"nap"},{"l":"أفتح الموبايل \"دقيقتين بس\"","n":"phone"}]},"rev":{"t":["تفتح الملخص. عندك ساعة قبل ما تخرج. مش هتلحق كل حاجة، فلازم تختار."],"c":[{"l":"أراجع النقاط الضعيفة اللي غلطت فيها قبل كده","n":"weak"},{"l":"أراجع العناوين الكبيرة كلها بسرعة","n":"core"}]},"weak":{"t":["تفتح ورقة الأخطاء: نزيف ما بعد الولادة، وجرعات الماغنسيوم، وعلامات انفصال المشيمة. تكتبهم تاني بإيدك، وحاسس إنك ماسك الخيط."],"c":[{"l":"أنزل وأفطر فطار خفيف","n":"leave","s":["weak"]}]},"core":{"t":["تمر على عشرين عنوان بسرعة. شايف الصورة الكبيرة، بس التفاصيل بتهرب منك."],"c":[{"l":"أنزل من غير فطار عشان ألحق","n":"leave","s":["core"]}]},"nap":{"t":["تصحى ٧:٢٥ على صوت أمك: \"إنت لسه نايم؟!\" تقوم مفزوع من غير ما تراجع حاجة."],"c":[{"l":"ألبس بسرعة وأجري","n":"leave","s":["late"]}]},"phone":{"t":["تفتح فيسبوك \"دقيقتين\"... ساعة وربع تعدي وأنت بتتفرج على قروبات الدفعة. الكل بيقول إن الامتحان صعب، والقلق يبدأ يتسرب."],"c":[{"l":"أقفل الموبايل وأجري","n":"leave","s":["late","anx"]}]},"leave":{"t":["الساعة قربت على ٨. الشارع زحمة، ومحتاج توصل الكلية قبل ٨:٤٥."],"c":[{"l":"أركب ميكروباص وأتحمل الزحمة","n":"bus"},{"l":"أطلب تاكسي بالتطبيق وأدفع زيادة","n":"taxi"}]},"bus":{"t":["الميكروباص بيقف في كل محطة. بعد ٢٥ دقيقة يتعطل في نص الطريق. تنزل وتبص في الساعة بقلق."],"c":[{"l":"أركب أي مركبة تانية وأدفع اللي يطلبوه","n":"hall2"},{"l":"أجري باقي الطريق","n":"hall2","s":["tired"]}]},"taxi":{"t":["السواق بيعرف طريق مختصر. توصل قبل الامتحان بنص ساعة، وتلاقي زمايلك واقفين قدام الكلية."],"c":[{"l":"أقف معاهم أسمع كلامهم","n":"friend"},{"l":"أدخل القاعة بسرعة وأقعد هادي","n":"hall"}]},"friend":{"t":["زميلك أحمد بيقولك: \"الأسئلة قريبة من ورقة السنة اللي فاتت.\" وبعدين بيبص حواليه وبيهمس: \"فيه واحد جوه قال إنه هيتصرف لو حد احتاج حاجة.\"","بتحس إن فيه حاجة غلط."],"c":[{"l":"أقوله إني مش عايز غير مذاكرتي وأدخل","n":"hall"},{"l":"أسأله هيتصرف إزاي","n":"cheat"}]},"cheat":{"t":["أحمد بيهمس: \"في ورقة صغيرة ممكن أدّيهالك. محدش هياخد باله.\""],"c":[{"l":"أرفض وأمشي","n":"hall","s":["clean"]},{"l":"آخد الورقة وأدخل بيها","n":"hall","s":["cheat"]}]},"hall":{"t":["القاعة هادية، وورقة الأسئلة اتوزعت. تبص على أول سؤال: \"سيدة حامل في الأسبوع ٣٤، ضغطها ١٦٥ على ١١٠، وعندها صداع شديد. إيه أول خطوة؟\""],"c":[{"l":"أكتب: أقيّم علامات الخطر وأبدأ سلفات الماغنسيوم وأتابع الضغط","n":"q_good","r":["weak"]},{"l":"أكتب كل اللي أعرفه عن تسمم الحمل بالترتيب اللي بحفظه","n":"q_mid"},{"l":"أسيب السؤال وأروح للتاني","n":"q_mid"},{"l":"أطلّع الورقة الصغيرة من جيبي","n":"cheat2","r":["cheat"]}]},"hall2":{"t":["تدخل القاعة متأخر عشرين دقيقة. المراقب بيسمح لك بالدخول بتنبيه، والورقة اتوزعت من بدري. قلبك بيدق."],"c":[{"l":"أبدأ بأسهل الأسئلة وأتجنب الصعب","n":"e_late"},{"l":"أبص على الساعة وأحاول أحل بسرعة جنونية","n":"e_late"}]},"q_good":{"t":["تكتب الإجابة بنفس الترتيب اللي ثبّتّه الصبح. إيدك ثابتة وباقي الورقة بيمشي بسلاسة."],"c":[{"l":"أراجع آخر الأسئلة بتركيز وأضيف ملاحظة إكلينيكية","n":"e_secret","st":["study",150]},{"l":"أسلّم بعد المراجعة","n":"e_good"}]},"q_mid":{"t":["تكتب إجابة صحيحة لكنها مش مرتبة، والوقت بيجري وأنت لسه مخلصتش نص الورقة."],"c":[{"l":"أكمل اللي أعرفه وأسلّم","n":"e_mid"}]},"cheat2":{"t":["تفتح الورقة تحت الترابيزة. المراقب بيقترب بخطوات هادية."],"c":[{"l":"أحاول أقرا منها بسرعة","n":"e_bad"},{"l":"أقفلها وأسلّمها للمراقب وأعترف","n":"e_conf"}]},"e_good":{"t":["تسلّم الورقة وأنت متأكد من اللي كتبته. مش هتعرف النتيجة دلوقتي، لكن عندك سلام داخلي ما حدش يقدر يديهولك."],"c":[],"e":["good","ورقة بدون ندم"]},"e_secret":{"t":["المراقب بيقف عند ورقتك ثانية أكتر من اللازم وبيبتسم. بعد أسبوعين تطلع النتيجة وتلاقي نفسك من الأوائل."],"c":[],"e":["secret","السؤال اللي ذاكرته مرتين"]},"e_mid":{"t":["تسلّم الورقة وإنت حاسس إنك كنت تقدر تعمل أحسن. بتنجح، لكن مع شعور إنك ضيّعت فرصة."],"c":[],"e":["neutral","ورقة متوسطة"]},"e_late":{"t":["تخلّص آخر دقيقة بالعافية. بتسلّم ورقة ناقصة وأنت بتتنفس بصعوبة. الدرس واضح: أول ساعة في اليوم هي اللي بتحدد باقيه."],"c":[],"e":["neutral","ركضة آخر لحظة"]},"e_bad":{"t":["المراقب يمسك الورقة قبل ما تقراها. يتحرر محضر غش وتتحول للجنة. اللي حفظته طول الفصل بيضيع في دقيقة."],"c":[],"e":["bad","محضر غش"]},"e_conf":{"t":["المراقب يسكت لحظة، وبعدين يقولك: \"كويس إنك اعترفت.\" يسمح لك تكمل بعد تنبيه. تكتب الورقة بأعصاب هادية لأن ضميرك صاحي."],"c":[],"e":["neutral","الصدق بيكلّف بس بيريّح"]}}},{"id":"dl","t":"صفقة المخزن","d":"تاجر بيعرض عليك شحنة عدد شغل بسعر مغري. كل قرار فيه فلوس حقيقية.","s":"money","l":"ar","n":{"s":{"t":["رسالة جديدة على ماسنجر من \"أبو ماجد\": \"عندي ٢٠٠ عدة شغل، دريل وجرايندر وكسّارات، بسعر أقل من السوق بأربعين في المية. بس لازم عربون كبير النهارده، عشان في تاجر تاني مستني.\"","قلبك بيدق. دي فرصة ممكن تضاعف مخزنك، أو فخ."],"c":[{"l":"أطلب صور وفيديو للعدد وهي شغالة","n":"proof"},{"l":"أحوّل العربون فورًا قبل ما يروح لغيري","n":"pay"},{"l":"أسأل صاحبي التاجر القديم قبل ما أقرر","n":"friend"}]},"proof":{"t":["يبعتلك صور لامعة وكتالوج. بتعمل بحث بالصورة وتلاقي إن نص الصور منزّلة من مواقع مصنّعين."],"c":[{"l":"أطلب مكالمة فيديو مباشرة وأشوف المخزن","n":"vid"},{"l":"أقول لنفسي \"الصور أكيد حقيقية\" وأكمل","n":"pay"}]},"friend":{"t":["الحاج سعيد بيسمعك وبيقولك: \"الأسعار دي يا إما بضاعة مضروبة يا إما نصب. اطلب عينة الأول، وما تدفعش قبل ما تستلم.\""],"c":[{"l":"أتصل بأبو ماجد وأطلب عينة بالدفع عند الاستلام","n":"sample","s":["advice"]},{"l":"ألغي الموضوع وأرجع لشغلي","n":"e_safe"}]},"vid":{"t":["أبو ماجد يتهرب ساعتين، وبعدين يوافق على مكالمة قصيرة. المخزن حقيقي لكن العدد أقل بكتير من ٢٠٠. وهو بيقول: \"الباقي هيوصل الأسبوع الجاي.\""],"c":[{"l":"أطلب عينة بالدفع عند الاستلام","n":"sample","s":["real"]},{"l":"أرفض الصفقة وأخرج","n":"e_safe"}]},"sample":{"t":["وصلت العينة: خمس قطع. اتنين منهم مضروبين، البلاستيك رخيص، والمحرك بيسخّن بسرعة. الباقي بيشتغل كويس."],"c":[{"l":"أتفاوض على السعر بناءً على العيوب","n":"negotiate"},{"l":"أطلب ضمان استبدال مكتوب على أي قطعة معيبة","n":"guarantee"},{"l":"أرفض الصفقة كلها","n":"e_safe"}]},"guarantee":{"t":["أبو ماجد يرفض يكتب أي حاجة: \"هو أنا غريب؟ ثق فيا.\" الرفض ده علامة حمراء."],"c":[{"l":"أنسحب","n":"e_safe"},{"l":"أدفع العربون على كل حال","n":"pay"}]},"negotiate":{"t":["تقوله: \"نصف العدد عيب، السعر ده مش مقبول.\" يتردد."],"c":[{"l":"أقترح سعرًا أقل ٢٥٪ مع عقد واستبدال العيب وعربون صغير","n":"deal","st":["money",120],"s":["hi"]},{"l":"أقبل السعر الأصلي وأقول يا رب ينفع","n":"deal2"}]},"pay":{"t":["تحوّل العربون الكبير. بعد ساعتين مفيش رد. بعد يوم الرقم مغلق وحسابه اتحذف.","تحاول تبلّغ، لكن الفلوس راحت."],"c":[],"e":["bad","العربون الضايع"]},"deal":{"t":["بتوقّع عقد رسمي، وعربون صغير والباقي عند الاستلام مع بند الاستبدال. الشحنة توصل بنسبة عيب ٨٪ بس، وأبو ماجد بيبعت بدل التالف."],"c":[{"l":"أبيع بالجملة لتاجر واحد بسرعة","n":"sell1"},{"l":"أبيع قطاعي بالتدريج على صفحة المخزن","n":"sell2"},{"l":"أعرض على أبو ماجد عقد توريد شهري بدل الصفقة الواحدة","n":"supply","st":["money",300]}]},"deal2":{"t":["بتدفع السعر الكامل. الشحنة توصل بنسبة عيب ١٥٪، وأبو ماجد ما بيعوّضش حاجة. هامش الربح بقى ضئيل."],"c":[{"l":"أبيع بالجملة لتاجر واحد بسرعة","n":"sell1"},{"l":"أبيع قطاعي بالتدريج على صفحة المخزن","n":"sell2"}]},"sell1":{"t":["تاجر الجملة يشتري ٦٠٪ بربح بسيط ويرفض الباقي."],"c":[{"l":"أقبل وأوفّر رأس المال","n":"e_ok"}]},"sell2":{"t":["تنشر الصور وبتحتاج ميزانية إعلان صغيرة وسرعة في الرد."],"c":[{"l":"أعلن بميزانية صغيرة وأرد على كل عميل بسرعة","n":"e_good","r":["hi"]},{"l":"أعلن بميزانية صغيرة وأرد على كل عميل بسرعة","n":"e_ok","x":["hi"]}]},"supply":{"t":["أبو ماجد يوافق بعد تردد: عقد توريد شهري بسعر ثابت وضمان استبدال. بتتحول لتاجر بيصنع علاقة، مش بس يشتري ويبيع."],"c":[{"l":"أكمل البيع بالتدريج وأوسّع الصفحة","n":"e_secret"}]},"e_safe":{"t":["تقفل المحادثة وأنت حاسس بنوع من الراحة. مفيش صفقة ولا خسارة. بعد أسبوع تسمع إن تجار تانيين وقعوا في نفس الفخ."],"c":[],"e":["neutral","الانسحاب الذكي"]},"e_ok":{"t":["بتخرج من الصفقة براس مالك وربح بسيط. مش فرصة العمر، لكن مفيش خسارة، وتعلمت إن العينة والعقد قبل الدفع."],"c":[],"e":["neutral","ربح محدود"]},"e_good":{"t":["خلال أسبوعين بتبيع أغلب الشحنة بربح كويس. العملاء بيرجعوا يسألوا على الدفعة الجاية، واسم صفحتك بيبقى معروف."],"c":[],"e":["good","صفقة محسوبة"]},"e_secret":{"t":["بعد شهرين، العقد بيخلي مخزنك أكبر من أي وقت. أبو ماجد بيبقى مورّدك الأساسي، وإنت بتتعلم إن التاجر الحقيقي بيبني علاقات مش بس صفقات."],"c":[],"e":["secret","التاجر اللي بنى سلسلة"]}}},{"id":"gt","t":"بوابة الظلال","d":"بوابة سودا اتفتحت تحت المدينة. أنت صياد ومعاك فرقة صغيرة. اللي بتختاره بيحدد مين هيرجع.","s":"body","l":"ar","n":{"s":{"t":["صفارة الإنذار بتعلّي. بوابة سودا بتلمع وسط الميدان، والناس بتجري بعيد.","أنت صياد في فرقة مكوّنة من ليلى (مستشعرة بتقرا الطاقة) وكريم (الدرع بتاع الفرقة). الصياد المسؤول عن الفريق بيبعتلكم: \"ادخلوا وارجعوا بالكل.\""],"c":[{"l":"ندخل بهدوء ونتجنب القتال","n":"sneak"},{"l":"نهجم مباشرة قبل ما تتقفل","n":"rush"},{"l":"نفحص البوابة قبل الدخول","n":"scan"},{"l":"أكسر باب البوابة بقوتي وأدخل الأول","n":"power","st":["body",200]}]},"scan":{"t":["ليلى بتغمض عينيها وتقول: \"رتبة C. فيها حارس واحد كبير، والطاقة جواها عالية. وفيه خزنة مخفية بتتفتح بمفتاح.\""],"c":[{"l":"ندخل بالمعلومات دي","n":"hall","s":["intel"]}]},"sneak":{"t":["ممر ضيق مليان عظام. في وسطه بلاطة بتلمع بلون مختلف."],"c":[{"l":"أفحص الأرض الأول","n":"trap_ok"},{"l":"أعدّي بسرعة","n":"trap"}]},"trap_ok":{"t":["بتلاقي فخ سهام وبتعطّله. وراه تلاقي مفتاح صدئ مرمي في العظام."],"c":[{"l":"نكمل للقاعة","n":"hall","s":["key"]}]},"trap":{"t":["سهم بيطلع من الحيط ويصيب كريم في كتفه. بيكتم الألم وبيقولك: \"أكمل.\""],"c":[{"l":"نكمل للقاعة","n":"hall","s":["hurt"]}]},"rush":{"t":["وحوش صغيرة بتهجم من كل ناحية. بتقضي عليهم بسرعة، لكن الفريق بيتعب، وكريم بيتصاب."],"c":[{"l":"نكمل للقاعة","n":"hall","s":["hurt"]}]},"power":{"t":["الباب الحديد بيتحطم تحت إيدك. ليلى وكريم بيبصولك بذهول. بتدخل وأنت حاسس بالطاقة بتجري في جسمك."],"c":[{"l":"ندخل الممر","n":"hall","s":["power"]}]},"hall":{"t":["قاعة ضخمة. في نصها حارس الصدى، تمثال حجري عملاق، كل خطوة منه بتعمل صدى بيهز الأرض. وفي جنب القاعة باب صغير مقفول."],"c":[{"l":"نواجهه مباشرة","n":"fight"},{"l":"نستخدم الصدى ضدّه بإيقاع ليلى","n":"echo","r":["intel"]},{"l":"نفتح الباب الجانبي بالمفتاح","n":"vault","r":["key"]},{"l":"ننسحب بهدوء","n":"e_retreat"}]},"fight":{"t":["الحارس بيضرب الأرض والقاعة كلها بتهتز. كريم بيرفع درعه ويتراجع خطوة."],"c":[{"l":"أستخدم كل قوتي وأنهيه بضربة واحدة","n":"e_hero","st":["body",250]},{"l":"أقاتل بحذر وأحمي كريم","n":"fight2"}]},"fight2":{"t":["الحارس بيضرب ضربة تانية، كريم ينهار. لو سبته هيتأذى جدًا."],"c":[{"l":"أضحّي بنفسي وأمسك الحارس عشان الفريق يهرب","n":"e_sac"},{"l":"أرجع بكريم المصاب وأسيب البوابة","n":"e_retreat"}]},"echo":{"t":["ليلى تدق على الأرض بإيقاع معين، والصدى يرجع للحارس ويتخبط جواه. الحجر بيتشقق من جوّه. كريم بيهجم على الصدع وأنت بتكمل بالضربة الأخيرة."],"c":[],"e":["good","الصياد الهادي"]},"vault":{"t":["بتفتح الباب الصغير: خزنة مليانة أدوات قديمة وبلورات. في آخرها بوابة هروب مخفية. وبتلاقي كتاب قديم مكتوب فيه: \"اللي يتجنب الحراس ياخد الكنز، واللي يتعلم منهم ياخد الطريق.\""],"c":[{"l":"أخد الكتاب وأخرج الفرقة من الباب السري","n":"e_secret"}]},"e_hero":{"t":["الحارس بيتفتت لحجارة صغيرة. بتقف في وسط القاعة وأنت بتتنفس بصعوبة، وفوق جسمك طاقة جديدة. ليلى وكريم بيصفقوا وبيقولوا: \"ده إنت اللي كسرت القيد.\""],"c":[],"e":["good","كسر القيد"]},"e_retreat":{"t":["بتخرجوا قبل ما البوابة تتقفل. مفيش كنز ولا غنيمة، لكن الفريق كله عايش. المسؤول بيقولك: \"الانسحاب في وقته مش جبن.\""],"c":[],"e":["neutral","الانسحاب الذكي"]},"e_sac":{"t":["بتمسك الحارس وبتصرخ إنهم يهربوا. الفريق يخرج. إنت بتقع تحت ضربة من الحجارة. بتلاقي نفسك في المستشفى بعد أسبوع، وكريم بيزورك وهو بيبكي. التضحية كانت لازم يكون ليها طريق تاني."],"c":[],"e":["bad","التضحية"]},"e_secret":{"t":["بترجع بالكتاب وبتفتح خزنته. جواه خريطة لبوابات تانية وطرق تدريب مخفية. بتكتشف إن في حاجة أكبر من مجرد صيد."],"c":[],"e":["secret","الخزنة المنسية"]}}},{"id":"ch","t":"The Missing Chart","d":"It is 2 a.m. in the hospital and a patient's file has disappeared. Read, choose, and save new words.","s":"code","l":"en","n":{"s":{"t":["It is 2 a.m. in the hospital. You are a student on the night shift. A nurse called Mona runs to you. \"Mr. Hassan's {chart|ملف المريض} is gone!\" she says. \"He needs his {dose|جرعة} of insulin in ten minutes, and I cannot find the last {record|سجل}.\"","You feel your heart {race|يخفق بسرعة}. Mr. Hassan has diabetes, and a wrong dose can be very dangerous."],"c":[{"l":"Check Mr. Hassan's blood sugar first","n":"sugar"},{"l":"Search the nurses' station","n":"station"},{"l":"Call the doctor on duty","n":"doc"}]},"sugar":{"t":["His blood sugar is 95. That is {normal|طبيعي}, so he is not in danger right now. You have a little time, and you let out a long breath."],"c":[{"l":"Search the nurses' station","n":"station","s":["safe"]},{"l":"Go to the records room","n":"records","s":["safe"]},{"l":"Ask Mr. Hassan what he remembers","n":"ask","s":["safe"]}]},"station":{"t":["The desk is a mess: papers, cold tea, and a {sticky note|ورقة لاصقة} on the screen. It says, \"Hassan - moved to Ward B?\" Your tired mind starts to work."],"c":[{"l":"Run to Ward B","n":"wardb","s":["clue"]},{"l":"Check the records room first","n":"records"}]},"doc":{"t":["Dr. Salma answers in a sleepy voice. \"Never guess a dose,\" she says. \"Find the chart. If you cannot, I will come and {examine|يفحص} him myself and write a new order.\""],"c":[{"l":"Ask her to come now","n":"e_doc"},{"l":"Say thank you and start looking","n":"station","s":["docok"]}]},"ask":{"t":["Mr. Hassan is awake but {confused|مشوّش}. \"I take twelve units in the morning,\" he says. \"And yesterday the nurse gave me a blue pen.\"","You are not sure if he remembers correctly."],"c":[{"l":"Give him twelve units now, as he said","n":"e_bad"},{"l":"Keep searching for the real chart","n":"station"}]},"records":{"t":["The records room smells of dust. In a cabinet you find a folder called \"Hasan, M.\" It looks right at first, but something feels strange."],"c":[{"l":"Check the date of birth and the ID number","n":"verify"},{"l":"Take it to the nurse, it must be the right one","n":"e_bad"}]},"verify":{"t":["You compare the details. The date of birth is different! This is a different patient with a very {similar|مشابه} name. If you had used this chart, the dose would have been wrong.","Now you realise the real chart may be on the computer."],"c":[{"l":"Open the hospital computer system","n":"computer"}]},"wardb":{"t":["In Ward B a tired nurse looks up. \"Mr. Hassan? Yes, we kept his file here by mistake after the transfer.\""],"c":[{"l":"Check his wristband and the chart before you take it","n":"e_good"},{"l":"Take the chart and run back immediately","n":"e_ok"}]},"computer":{"t":["The system shows the chart was {archived|مؤرشف} at 11 p.m. by a user called \"night-admin\". The patient is still in the hospital, so this should not happen."],"c":[{"l":"Restore the chart and print it","n":"e_good"},{"l":"Read the system log to find out why this happened","n":"log","st":["code",100]}]},"log":{"t":["You find a pattern: the system {automatically|تلقائيًا} archives any chart after a ward transfer. This has happened to three other patients this week. You write it down for the IT team."],"c":[{"l":"Restore the chart and report the problem to the doctor","n":"e_secret"}]},"e_doc":{"t":["Dr. Salma arrives in five minutes, checks Mr. Hassan, and writes a new order. The patient is safe, but the missing chart is still a mystery. You learn that asking for help is part of the job."],"c":[],"e":["neutral","Calling for help"]},"e_ok":{"t":["You find the chart and give the correct dose, but you forgot to check the {wristband|سوار المعصم}. Luckily, it was the right patient this time. Mona says quietly, \"Always check twice.\""],"c":[],"e":["neutral","Lucky and late"]},"e_good":{"t":["You restore the right chart and check Mr. Hassan's wristband. The dose is {correct|صحيح}. Mona smiles. \"You saved the night,\" she says. Mr. Hassan falls asleep with a calm face."],"c":[],"e":["good","The right dose"]},"e_secret":{"t":["In the morning, the IT team fixes the {bug|خلل برمجي} and thanks you. Dr. Salma tells the director about your report. A small mistake in a system almost became a big mistake for a patient, and you stopped it."],"c":[],"e":["secret","The hidden bug"]},"e_bad":{"t":["You give the wrong dose. Ten minutes later Mr. Hassan is sweating and shaking. His blood sugar is {dangerously|بشكل خطير} low. The team rushes in and treats him, and he survives, but you understand how close it was."],"c":[],"e":["bad","The wrong dose"]}}},{"id":"dp","t":"The Difficult Conversation","d":"A patient is waiting for her test results and she is afraid. How you speak matters as much as what you say.","s":"code","l":"en","n":{"s":{"t":["You are a medical student in a small clinic. Dr. Karim asks you to help him with a patient called Mrs. Layla. She is 52 years old and she is waiting for the results of a {biopsy|خزعة}.","Dr. Karim says, \"I will give her the news. You stay with her and take notes.\" But then his phone rings and he runs out. You are alone with Mrs. Layla."],"c":[{"l":"Introduce yourself and ask how she is feeling","n":"intro"},{"l":"Tell her the doctor will be back soon, and stay quiet","n":"quiet"},{"l":"Ask her if she wants to talk about her worries","n":"worry"}]},"intro":{"t":["\"Good morning, Mrs. Layla. I am a student, and I will stay with you.\" She {smiles|تبتسم} weakly. \"I did not sleep last night,\" she says. \"I keep thinking about the results.\""],"c":[{"l":"Listen without interrupting her","n":"listen","s":["kind"]},{"l":"Tell her not to worry because it is probably nothing","n":"bad1"}]},"quiet":{"t":["The room is silent for two minutes. Mrs. Layla looks at the wall. Her hands are shaking, and you notice she is trying not to cry."],"c":[{"l":"Gently ask if she wants to talk","n":"worry"},{"l":"Look at your notes and keep waiting","n":"e_cold"}]},"worry":{"t":["Mrs. Layla takes a deep breath. \"My mother died of the same illness,\" she says. \"I am so {afraid|خائفة} that I will be next.\""],"c":[{"l":"Say: \"That sounds very hard. Thank you for telling me.\"","n":"listen","s":["kind"]},{"l":"Say: \"Everyone has problems, you will be fine.\"","n":"bad1"}]},"listen":{"t":["You listen for a few minutes. She tells you about her two children and how scared she is to leave them. You do not interrupt, and you nod when she looks at you.","When she stops, you ask, \"What is the most important thing for you to understand today?\""],"c":[{"l":"Wait quietly for her to answer","n":"truth","s":["kind"]},{"l":"Offer to bring her a glass of water first","n":"truth","s":["kind"]}]},"bad1":{"t":["Her face changes. \"You do not know that,\" she says. \"Please do not say this.\" She turns her head away. You realise your comfort felt more like a closed door."],"c":[{"l":"Say sorry and ask how you can help","n":"listen"},{"l":"Leave the room to find Dr. Karim","n":"e_cold"}]},"truth":{"t":["\"I think I already know the answer,\" she says. \"But I want to hear it clearly, not in medical words.\"","Dr. Karim comes back at that moment. He looks at you, then at her."],"c":[{"l":"Stay in the room because she wants me here","n":"stay"},{"l":"Leave them alone with the doctor","n":"e_ok"}]},"stay":{"t":["Dr. Karim sits down and says, \"Mrs. Layla, I have your results. I am sorry to tell you that the biopsy shows cancer.\" He pauses. \"But we caught it {early|مبكرًا}, and there is a clear plan.\"","Mrs. Layla closes her eyes. After a minute she asks, \"What happens next?\""],"c":[{"l":"Offer to write down the plan and the questions she wants to ask","n":"e_good"},{"l":"Stay silent and let Dr. Karim do the rest","n":"e_ok"},{"l":"Ask Dr. Karim if she can bring a family member to the next visit","n":"e_secret","st":["code",100]}]},"e_cold":{"t":["You stay silent or leave, and Mrs. Layla feels alone with her fear. The news comes later, in a cold room. She tells the nurse, \"I wish someone had sat with me.\" You understand that silence can hurt."],"c":[],"e":["bad","A cold room"]},"e_ok":{"t":["Mrs. Layla gets the news and leaves with the plan. She is polite, but she looks tired and alone. You did not do anything wrong, but you wonder what small thing could have helped."],"c":[],"e":["neutral","Good, but distant"]},"e_good":{"t":["You write the plan in simple words: tests, dates, and her questions. Mrs. Layla holds the paper and says, \"Thank you. I feel like I can do this.\" Dr. Karim nods at you from across the room."],"c":[],"e":["good","Clear and kind"]},"e_secret":{"t":["Dr. Karim smiles. \"Good idea.\" Mrs. Layla calls her daughter, and they plan the next visit together. At the end she says, \"You were the first person who asked what I needed.\" You learn that listening is a skill, not a talent."],"c":[],"e":["secret","The person beside her"]}}},{"id":"ed","t":"آخر تسليم","d":"عميل مستني فيديو الساعة تسعة الصبح، والريندر بيقع، والوقت بيجري. مونتير تحت الضغط.","s":"create","l":"ar","n":{"s":{"t":["الساعة ٩ بالليل. العميل طلب فيديو إعلان ٩٠ ثانية، ولازم يتسلّم الساعة ٩ الصبح. عندك فوتيدج تقيل، وصوت المقابلة مش متزامن، وأغنية مرجعية مش معاك ترخيصها.","بتفتح البرنامج، والمشروع فاضي."],"c":[{"l":"أنظّم المشروع وأعمل نسخة احتياطية الأول","n":"backup"},{"l":"أبدأ المونتاج فورًا","n":"cut"},{"l":"أبعت للعميل أسأله عن مراجع الستايل","n":"ask"}]},"backup":{"t":["عشرين دقيقة بتروح في ترتيب الفولدرات والنسخ. حاسس بالتأخير، لكن لما بتبص على الشاشة بتحس بنظام."],"c":[{"l":"أبدأ المونتاج","n":"cut","s":["safe"]}]},"ask":{"t":["العميل بيرد بسرعة: \"حركة خفيفة وألوان دافئة، وإيقاع سريع من غير استعجال.\" كلمتين بسيطين بس بيوفروا عليك ساعات."],"c":[{"l":"أبدأ المونتاج","n":"cut","s":["brief"]}]},"cut":{"t":["ثلاث ساعات من الشغل. القصة بتبدأ تتكوّن، لكن الفيديو لسه مش عجباك."],"c":[{"l":"أضيف مؤثرات كتير عشان أبهر العميل","n":"fx"},{"l":"أبسّط وأركز على الإيقاع والقصة","n":"rhythm"}]},"fx":{"t":["بتضيف انتقالات وتأثيرات ولون وحركة. الفيديو شكله حلو، لكن البرنامج بيبدأ يهنج والملف بقى تقيل جدًا."],"c":[{"l":"أكمل وأفكر في الباقي بعدين","n":"music","s":["heavy"]},{"l":"أرجع وأشيل نص المؤثرات","n":"music"}]},"rhythm":{"t":["بتقص كل لقطة زيادة وتخلي كل ثانية لها دور. الفيديو بيتنفس. حتى من غير مؤثرات، القصة بتوصل."],"c":[{"l":"أكمل لمرحلة الصوت","n":"music","s":["story"]}]},"music":{"t":["مشكلة جديدة: الأغنية المرجعية محمية بحقوق، والعميل هيرفع الفيديو على إعلان ممول. لازم تقرر دلوقتي."],"c":[{"l":"أستخدم الأغنية نفسها وأقول العميل هو اللي يتحمل","n":"risk"},{"l":"أدوّر على موسيقى مرخصة وأعدّل الإيقاع عليها","n":"lic"},{"l":"أتصل بصاحبي الموسيقار وأطلب لحن قصير النهارده","n":"comp","st":["create",150]}]},"risk":{"t":["الفيديو بيتحول بسرعة، لكن بعد يومين العميل بيتصل غاضب: \"الإعلان اتحذف بسبب حقوق الموسيقى.\""],"c":[{"l":"أعتذر وأصلح بسرعة","n":"render","s":["strike"]}]},"lic":{"t":["بتلاقي مكتبة موسيقى مرخصة. مش نفس الأغنية بس قريبة، وبتعدّل قصّاتك على الإيقاع الجديد. الفيديو بيطلع أنضف."],"c":[{"l":"أبدأ الريندر","n":"render","s":["lic"]}]},"comp":{"t":["صاحبك يبعتلك لحن في ساعة: ٩٠ ثانية بالظبط على الإيقاع اللي في رأسك. الفيديو بيتحول لحاجة مختلفة تمامًا."],"c":[{"l":"أبدأ الريندر","n":"render","s":["lic","orig"]}]},"render":{"t":["الساعة ٣ الفجر. بتدوس Render، البرنامج بيشتغل ٢٠ دقيقة وبعدين يقع. الشاشة سودا."],"c":[{"l":"أرجع لنسخة الاحتياطي وأكمل منها","n":"recover","r":["safe"]},{"l":"أعمل نسخة بروكسي أخف وأعيد الريندر","n":"proxy"},{"l":"أعيد المحاولة بنفس الإعدادات","n":"crash"}]},"recover":{"t":["بترجع للنسخة الاحتياطية وبتخسر ساعة بس. بتعمل بروكسي، والريندر بيعدّي."],"c":[{"l":"أسلّم بلحن صاحبي الأصلي بعد مراجعة أخيرة","n":"e_secret","r":["orig"]},{"l":"أتأكد من الصوت واللون وأسلّم","n":"e_good","r":["lic"]},{"l":"أتأكد من الصوت واللون وأسلّم","n":"e_ok","x":["lic"]}]},"proxy":{"t":["بتعمل ملفات أخف وبتعيد الريندر. بيعدّي، بس بجودة أقل شوية مما كنت عايز."],"c":[{"l":"أسلّم بلحن صاحبي الأصلي بعد مراجعة أخيرة","n":"e_secret","r":["orig"]},{"l":"أراجع الصوت وأسلّم","n":"e_ok"}]},"crash":{"t":["الريندر بيقع تاني. وبتبص على الساعة: ٥ الصبح. لو ما اتغيّرش حاجة مفيش تسليم."],"c":[{"l":"أبعت اعتذار للعميل وأطلب ساعتين زيادة","n":"e_late"},{"l":"أنقل الشغل لجهاز صاحبي وأحاول","n":"proxy"}]},"e_good":{"t":["الفيديو بيتسلّم قبل التسعة بعشر دقايق. العميل يبعت: \"ده أحلى من اللي تخيلته.\" بتنام وانت مبسوط ومرتاح."],"c":[],"e":["good","تسليم نظيف"]},"e_ok":{"t":["بتسلّم الفيديو في وقته. فيه تفاصيل كان ممكن تبقى أحلى، لكنه شغال ومقبول. تنام ساعتين وتصحى على رسالة شكر."],"c":[],"e":["neutral","تسليم مقبول"]},"e_late":{"t":["بتتأخر ساعتين. العميل مش مبسوط لكنه بيقدّر الصراحة. الشغل يتسلّم الساعة ١١، والفيديو كويس، بس سمعتك في الالتزام بالمواعيد اتهزّت شوية."],"c":[],"e":["neutral","اعتذار متأخر"]},"e_secret":{"t":["الفيديو بيتسلّم بلحن أصلي مخصوص وقصة قوية. العميل بيرجع يطلب باقي الحملة، ويقول لصحابه: \"ده مونتير مختلف.\" الشغل اللي بدأ كضغط بقى بداية علاقة."],"c":[],"e":["secret","اللحن الأصلي"]}}},{"id":"pp","t":"نزيف ما بعد الولادة","d":"بعد ولادة طبيعية، الدم بيزيد قدام عينيك. الدقايق الأولى هي اللي بتفرّق.","s":"study","l":"ar","n":{"s":{"t":["الساعة ٣ الفجر في غرفة الولادة. سيدة في ولادتها الثالثة، ولدت طفلها من عشر دقايق بصحة كويسة. أنت الطبيب المقيم.","الممرضة هالة بتقولك بصوت عالي: \"الدم بيزيد يا دكتور! الشرشف كله دم.\""],"c":[{"l":"أدلّك الرحم فورًا وأنده المساعدة","n":"massage"},{"l":"أقيس الضغط والنبض الأول","n":"bpq"},{"l":"أفحص عنق الرحم والعجان بحثًا عن تمزق","n":"trauma"}]},"bpq":{"t":["الضغط ٩٥ على ٦٠ والنبض ١١٥. المريضة شاحبة، والدم لسه بينزل. أخدت دقيقتين من غير ما تتصرف في السبب."],"c":[{"l":"أدلّك الرحم فورًا وأنده المساعدة","n":"massage","s":["late"]}]},"trauma":{"t":["بتفحص العجان وعنق الرحم. فيه تمزق صغير بينزف شوية، لكنه ما يفسرش الكمية اللي شايفها. الرحم لسه رخو من فوق."],"c":[{"l":"أخيط التمزق الأول","n":"e_bad"},{"l":"أرجع للرحم وأدلّكه","n":"massage"}]},"massage":{"t":["بتحط إيدك على قاع الرحم وتدلّك بقوة. الرحم رخو ومش متقلص. ده نزيف من ضعف انقباض الرحم، وهو أشهر سبب.","هالة بتسأل: \"أجهّز إيه؟\""],"c":[{"l":"أفتح وريدين بكانيولا كبيرة وأعطي أوكسيتوسين وريدي وأبعت دم للفصيلة","n":"oxy","s":["oxy"]},{"l":"أديها ميزوبروستول تحت اللسان بس وأمشي","n":"e_bad"}]},"oxy":{"t":["الرحم بيتقلص جزئيًا لكن النزيف لسه شغال. تقدّر الدم المفقود بحوالي ١٠٠٠ مل. الضغط ٩٠ على ٥٥."],"c":[{"l":"أعطي سوايل وأكتب أوامر نقل دم وأبلّغ الاستشاري","n":"shock"},{"l":"أسأل عن تاريخ المريضة قبل أي دواء إضافي","n":"hx"}]},"hx":{"t":["بتسأل: \"عندك حساسية أو ربو أو ضغط؟\" المريضة بتقول إنها عندها ربو شعبي من الصغر.","ده يهم في اختيار الدواء الثاني، لأن بعض أدوية الانقباض ممنوعة في الربو."],"c":[{"l":"أعطي حمض الترانيكساميك وميزوبروستول بدل الكاربوبروست","n":"second","s":["safe"]},{"l":"أعطي كاربوبروست لأنه الأقوى","n":"e_bad2"}]},"shock":{"t":["بتديها سوايل وأمرت بنقل دم. الاستشاري د. نادية بتوصل بعد ١٠ دقايق وبتسألك: \"إيه الأسباب الأربعة اللي بنفكر فيها؟\""],"c":[{"l":"الانقباض، الصدمة والتمزق، بقايا الأنسجة، واضطراب التخثر","n":"second","s":["fours"]},{"l":"مش فاكر دلوقتي","n":"second"}]},"second":{"t":["د. نادية بتفحص بسرعة. \"الرحم لسه رخو. هنعيد التدليك ونعطي حمض الترانيكساميك، ونفحص المشيمة.\"","بتفحص المشيمة اللي خرجت: ناقصة فص صغير."],"c":[{"l":"أبلّغ د. نادية إن فيه بقايا مشيمة محتملة","n":"tissue"},{"l":"أكمل بالأدوية بس","n":"tx"}]},"tissue":{"t":["د. نادية بتأخد المريضة لغرفة العمليات وبتشيل البقايا. الرحم بيتقلص بعدها بشكل ملحوظ، والنزيف يتوقف تدريجيًا."],"c":[{"l":"أراقب الضغط والنبض وكمية البول وأكمل نقل الدم","n":"e_good"},{"l":"أطلب من د. نادية إذا كان فيه علامات اضطراب تخثر عشان نغطي كل الأسباب","n":"e_secret","st":["study",180]}]},"tx":{"t":["النزيف بيقل لكنه مش بيقف. الرحم لسه ضعيف. د. نادية بتقول: \"ندخل بالون رحمي.\""],"c":[{"l":"أساعد في وضع البالون وأراقب النزيف","n":"balloon"}]},"balloon":{"t":["البالون بيتحط وبيتملي بمحلول. بعد ٢٠ دقيقة بتشوف ينزل دم أقل بكتير. بعد ساعتين بيتوقف."],"c":[{"l":"أكمل المراقبة وأدوّن كل حاجة","n":"e_ok"}]},"e_good":{"t":["المريضة تفضل في الملاحظة ساعات، ومعاها محاليل ودم. بتتحسن بشكل كويس وبتروح لأولادها بعد ٣ أيام. النزيف كان قد يكون قاتل، لكن الخطوات المرتبة أنقذتها."],"c":[],"e":["good","السيطرة المبكرة"]},"e_secret":{"t":["تحليل التخثر بيظهر اضطراب خفيف لازم يتعالج. د. نادية بتبتسم: \"ما حدش بيفكر في ده غير اللي فاهم الصورة كاملة.\" المريضة بتتعافى تمامًا."],"c":[],"e":["secret","الصورة الكاملة"]},"e_ok":{"t":["البالون نجح في إيقاف النزيف. المريضة بتتحول للعناية لليلة واحدة وبتطلع بسلام. الفريق كله بيتنفس بعد ساعتين من التوتر."],"c":[],"e":["neutral","البالون ينقذ الموقف"]},"e_bad":{"t":["الوقت بيضيع. الضغط ينزل والمريضة تدخل في صدمة، والاستشاري بيتأخر. تنقل لغرفة العمليات في حالة سيئة، وبعد ساعتين تحتاج استئصال رحم لإنقاذ حياتها. الدقايق الأولى كانت كل حاجة."],"c":[],"e":["bad","التأخير"]},"e_bad2":{"t":["بعد الجرعة بدقايق المريضة بتتنفس بصعوبة وبتصفّر صدرها. نوبة ربو شديدة في وسط النزيف. الفريق بيتعامل معاها، وبتنجو بصعوبة. اسأل عن الحساسية والربو قبل أي دواء."],"c":[],"e":["bad","الدواء الغلط"]}}},{"id":"gm","t":"أول شهر في الجيم","d":"قررت تبدأ تتمرن بجد. الإغراء كبير إنك تستعجل، والجسم له رأي تاني.","s":"body","l":"ar","n":{"s":{"t":["بدأت الجيم من أسبوع. حماسك عالي جدًا، وفي دماغك صورة جسم معين عايز توصله بسرعة. مدرب الجيم، كابتن وليد، بيسألك: \"عايز تبدأ إزاي؟\""],"c":[{"l":"أبدأ بخطة متدرجة وأتعلم الحركات الأول","n":"plan"},{"l":"أرفع أتقل وزن أقدر عليه من أول يوم","n":"heavy"},{"l":"أتبع برنامج بطل مشهور شفته على الإنترنت","n":"celeb"}]},"plan":{"t":["بتبدأ بأوزان خفيفة وبتتعلم وضع الظهر في السكوات وحركة الضغط. بعد أسبوعين الحركات بقت بتعدّي من غير ألم، وبتبدأ تحس بالنتيجة الأولى."],"c":[{"l":"أضيف يوم رابع وأزود الوزن بشكل تدريجي","n":"pr","s":["good"]},{"l":"أحافظ على الخطة وأركز على النوم والأكل","n":"rest","s":["rest"]}]},"heavy":{"t":["بتحط وزن فوق قدرتك في الضغط. على التكرار الرابع بتحس بوجع حاد في الكتف. كابتن وليد بيجري عليك."],"c":[{"l":"أقف وأرتاح وأكمل بخفة الأيام الجاية","n":"pain","s":["pain"]},{"l":"أكمل التمرين وأتحمل","n":"e_bad"}]},"celeb":{"t":["البرنامج ٦ أيام في الأسبوع ومن غير راحة. في الأسبوع التاني بتبقى تعبان جدًا ومش عارف تنام."],"c":[{"l":"أعدّل البرنامج لـ ٤ أيام مع أيام راحة","n":"plan","s":["fix"]},{"l":"أكمل زي ما هو لأنه \"برنامج بطل\"","n":"burn"}]},"burn":{"t":["الإرهاق بيزيد، النوم بيقل، الأداء بينزل. صاحبك بيقولك: \"إنت متعوّد على الجيم ولا الجيم بقى عقاب؟\""],"c":[{"l":"أخد أسبوع راحة كامل وأرجع بخطة معقولة","n":"plan","s":["fix"]},{"l":"أكمل وأقول الضغط ده طبيعي","n":"e_burn"}]},"pain":{"t":["بتعمل كمادات وبتروح لدكتور عظام. التشخيص شد عضلي بسيط. بتنصح بأسبوعين راحة من الكتف. بتتعلم ترجع بحذر."],"c":[{"l":"أرجع بتمارين مرنة وبوزن خفيف","n":"plan","s":["fix"]}]},"pr":{"t":["بعد شهر بتكسر رقمك القياسي في الضغط. كابتن وليد بيصفّق: \"ده من التدرج مش من الاستعجال.\""],"c":[{"l":"أطلب منه يقيّم حركاتي وأتعلم تفاصيل أكتر","n":"e_good"},{"l":"أجرب أرقام أعلى بكتير للتحدي","n":"e_ok","x":["rest"]}]},"rest":{"t":["بتنام ٨ ساعات وتاكل بروتين كفاية. بعد شهر مش بس بتتقوّى، كمان بتحس بطاقة أعلى في المذاكرة والشغل."],"c":[{"l":"أحوّل الجيم لجزء ثابت من حياتي","n":"e_secret","st":["body",200]},{"l":"أكمل بنفس الخطة","n":"e_good"}]},"e_good":{"t":["بعد شهر الجيم بقى عادة مش مجهود. وزنك زاد، وتنفسك أحسن، وبتحس إن جسمك شريكك مش عبء."],"c":[],"e":["good","عادة بتتبني"]},"e_secret":{"t":["الانتظام بقى أهم عندك من الوزن. بعد ٣ شهور بتلاحظ إن مذاكرتك وتركيزك اتحسنوا، وإنك بتحل مشاكل أكتر بهدوء. الجيم علّمك الصبر."],"c":[],"e":["secret","الجسم والعقل"]},"e_ok":{"t":["بتجرب رقم أعلى وبتنجح لمرة واحدة، لكن بعدها بيومين بتحس بإجهاد. بتفهم إن التحدي مفيد، بس مع حدود."],"c":[],"e":["neutral","تحدي بحدود"]},"e_bad":{"t":["بتكمل وبعد التكرار السادس الوجع بيبقى لا يُحتمل. إصابة في الكتف بتبعدك عن الجيم شهرين. الاستعجال كلّفك أكتر من البطء."],"c":[],"e":["bad","الإصابة"]},"e_burn":{"t":["بعد ٣ أسابيع جسمك بيرفض. بتفقد الدافع تمامًا وبتبطّل الجيم لحد ما تتعافى. الراحة جزء من التدريب مش عكسه."],"c":[],"e":["bad","الإنهاك"]}}},{"id":"bg","t":"باغ منتصف الليل","d":"مشروعك قدّامه ساعات على التسليم، وفجأة بيظهر باغ مش مفهوم. تدوّر إزاي؟","s":"create","l":"ar","n":{"s":{"t":["الساعة ١ بعد منتصف الليل. التطبيق اللي بتبنيه لازم يتعرض على الأستاذ الساعة ١٠ الصبح. كل حاجة شغالة، إلا زر \"حفظ\" بيمسح البيانات بدل ما يحفظها.","قهوتك بردت، وعينك بتتقفل."],"c":[{"l":"أقرا الكود من أوله وأدوّر على الغلط","n":"read"},{"l":"أحط رسائل طباعة في كل مكان وأشوف إيه اللي بيحصل","n":"log"},{"l":"أسأل صاحبي المبرمج بعد ما أتصل بيه الساعة ١ بالليل","n":"friend"}]},"read":{"t":["بتقرا ٤٠٠ سطر. بعد ساعة ما لقيتش حاجة. عينك بدأت تتعب والكود كله شكله مظبوط."],"c":[{"l":"أرجع وأجرب طريقة تانية","n":"log","s":["tired"]},{"l":"أنام ساعة وأرجع بعقل صافي","n":"nap"}]},"log":{"t":["بتضيف رسائل طباعة: دالة الحفظ بتتنفذ، والبيانات بتتحفظ، وبعدها دالة تانية بتتنفذ وتمسح الكل."],"c":[{"l":"أدوّر على الدالة التانية دي","n":"clear","s":["clue"]}]},"friend":{"t":["صاحبك بيرد بنص صوت: \"ليه مش بتستخدم نظام التحكم في النسخ؟ ارجع لآخر نسخة شغالة وشوف إيه اللي اتغيّر.\""],"c":[{"l":"أقارن بين النسخة الحالية وآخر نسخة شغالة","n":"diff"},{"l":"أقول له شكرًا وأقفل وأكمل لوحدي","n":"log"}]},"nap":{"t":["بتنام ساعة. بتصحى بصداع خفيف، لكن دماغك أهدى. بتقرا الدالة تاني وتلاحظ حاجة غريبة قبل زر الحفظ."],"c":[{"l":"أركز على الجزء ده","n":"clear","s":["clue"]}]},"diff":{"t":["المقارنة بتظهر ٣ تغييرات بس من آخر نسخة شغالة. واحد منهم: سطر اتحط بالغلط في الدالة الرئيسية."],"c":[{"l":"أشيل السطر وأجرب","n":"fix","s":["clue"]}]},"clear":{"t":["بتلاقي الدالة اللي بتمسح: بتتنفذ تلقائيًا بعد كل حفظ بسبب شرط بيرجع صح دايمًا بدل ما يتحقق."],"c":[{"l":"أصلح الشرط وأجرب","n":"fix"},{"l":"أشيل الدالة كلها وأكتب بدلها واحدة جديدة","n":"rewrite"}]},"fix":{"t":["تعدّل الشرط، وتجرب: الحفظ بيشتغل! لكن لما بتقفل التطبيق وتفتحه، البيانات مش بتتحمّل. باغ تاني مخفي."],"c":[{"l":"أراجع طريقة التحميل وأضيف اختبار","n":"test","st":["create",100]},{"l":"أقول كفاية كده وأسلّم","n":"e_ok"}]},"rewrite":{"t":["بتكتب الدالة من الصفر في ١٥ دقيقة وبتجربها: بتشتغل. لكنك مش متأكد إن كل حاجة تانية سليمة."],"c":[{"l":"أراجع الكود كله وأضيف تعليقات","n":"test"},{"l":"أسلّم على أمل إنه ماشي","n":"e_bad"}]},"test":{"t":["بتكتب اختبار صغير: حفظ، قفل، فتح، تحقق. بيفشل. بتلاقي إن البيانات بتتحفظ بنسق مختلف عن اللي بيتحمّل. بتصلحه وبتشغل الاختبار: ينجح."],"c":[{"l":"أنام ساعتين قبل العرض","n":"e_good","x":["tired"]},{"l":"أسلّم النسخة وأكمّل بعد العرض","n":"e_ok"},{"l":"أضيف كمان رسالة تأكيد وأحسّن واجهة الحفظ","n":"e_secret","st":["create",150]}]},"e_good":{"t":["في العرض كل حاجة شغالة. الأستاذ بيسألك أسئلة عن كودك وبتجاوب بثقة. بيقولك: \"الاختبارات اللي كتبتها بتوضّح إنك فاهم.\" عبور بسلام."],"c":[],"e":["good","الاختبار ينقذ"]},"e_secret":{"t":["الأستاذ بيعرض مشروعك على الدفعة كمثال: \"شوفوا إزاي مبرمج بيفكر في المستخدم مش بس في الكود.\" بتطلع من القاعة مبتسم."],"c":[],"e":["secret","المستخدم أولًا"]},"e_ok":{"t":["التطبيق بيشتغل في العرض، لكن بيظهر باغ بسيط قدام الأستاذ. مش كارثة، لكنك بتتعلم إن الاختبار قبل التسليم أرخص بكتير من اعتذار بعده."],"c":[],"e":["neutral","شغال بالعافية"]},"e_bad":{"t":["في العرض بتدوس حفظ، والبيانات بتختفي قدام الأستاذ والدفعة كلها. بيسكت لحظة ويقولك: \"ارجع لما تختبر مشروعك.\" الباغ كان مستخبي في مكان محدش اختبره."],"c":[],"e":["bad","الباغ قدام الجميع"]}}},{"id":"iv","t":"The Interview","d":"You have an interview for a medical internship abroad. Every answer opens a new path.","s":"code","l":"en","n":{"s":{"t":["It is 8:45 a.m. and your interview is at nine. You sit in a small waiting room, repeating your answers in your head. The door opens. \"Good morning, I am Dr. Thompson,\" a woman says. \"Please come in.\"","You {shake hands|يصافح} and sit down. She looks at your {application|طلب التقديم} and smiles."],"c":[{"l":"Smile and say you are happy to be here","n":"start"},{"l":"Say you are nervous and ask for a glass of water","n":"nerve"},{"l":"Start talking about your marks immediately","n":"marks"}]},"nerve":{"t":["Dr. Thompson laughs kindly. \"Everyone is nervous. Take your time.\" She pours you water. You feel a little more calm, and she notices that you are honest."],"c":[{"l":"Thank her and start","n":"start","s":["warm"]}]},"marks":{"t":["You speak for two minutes about your grades. Dr. Thompson listens, but she {interrupts|تقاطع} politely: \"I can read your marks. Tell me about you.\""],"c":[{"l":"Say: \"I love medicine and I work very hard\"","n":"hard"},{"l":"Tell a short story about a patient who changed you","n":"story"}]},"start":{"t":["\"Tell me about yourself,\" Dr. Thompson says. This is the first big question."],"c":[{"l":"Give a short, clear answer about your studies and why you chose medicine","n":"story","s":["clear"]},{"l":"Talk about everything you have ever done","n":"long"}]},"long":{"t":["Five minutes pass. You see Dr. Thompson look at the clock. You realise you are talking too much, and your story has no clear {point|فكرة رئيسية}."],"c":[{"l":"Stop and say: \"Let me summarise in one sentence\"","n":"story"},{"l":"Keep going until you finish","n":"e_long"}]},"hard":{"t":["\"Many students work very hard,\" she says. \"What makes you different?\" You have a few seconds to answer."],"c":[{"l":"Talk about a challenge you overcame","n":"story","s":["chal"]},{"l":"Say you do not know","n":"e_bad"}]},"story":{"t":["You tell her about a night shift where an elderly patient was afraid. You sat with him and listened. Dr. Thompson writes something down. \"Why does that story matter to you?\" she asks."],"c":[{"l":"Say it taught you that listening is part of treatment","n":"weak"},{"l":"Say it was a very busy night","n":"e_ok"}]},"weak":{"t":["\"Good,\" she says. \"Next question: what is your {weakness|نقطة ضعف}?\""],"c":[{"l":"Be honest about a real weakness and what you are doing to improve it","n":"close","s":["honest"]},{"l":"Say you have no weaknesses","n":"e_bad"},{"l":"Say you work too hard and cannot relax","n":"close"}]},"close":{"t":["Dr. Thompson closes her file. \"Do you have any questions for us?\""],"c":[{"l":"Ask what a typical day looks like for interns","n":"e_good","r":["honest"]},{"l":"Ask about the salary and holidays first","n":"e_ok"},{"l":"Ask how the team supports interns who are new in the country","n":"e_secret","st":["code",100]},{"l":"Say no, you are fine","n":"e_ok"}]},"e_long":{"t":["You finish, but the interview is over. Dr. Thompson thanks you politely. You leave feeling that your best points were lost in too many words."],"c":[],"e":["bad","Too long"]},"e_bad":{"t":["The silence is heavy. Dr. Thompson writes a short note and says, \"Thank you for your time.\" You walk out with your heart beating. You know that preparing one honest sentence would have changed everything."],"c":[],"e":["bad","The empty answer"]},"e_ok":{"t":["The interview ends politely. You do not know how it went. A week later you get an email: \"We would like to keep you on a waiting list.\" Not a no, but not a yes."],"c":[],"e":["neutral","The waiting list"]},"e_good":{"t":["Dr. Thompson smiles. \"Good question.\" She tells you about the team and the mornings. Two weeks later you receive an email with the subject \"Welcome\". You read it three times."],"c":[],"e":["good","Welcome to the team"]},"e_secret":{"t":["Dr. Thompson puts down her pen. \"Nobody asks that,\" she says. \"It tells me you are thinking about your colleagues, not only yourself.\" A week later you get an offer, and the director writes your name on the first line of the list."],"c":[],"e":["secret","The question nobody asked"]}}},{"id":"iq","t":"أول استثمار","d":"معاك مبلغ صغير موفّره وعايز تنمّيه. كل بيئة استثمار فيها ناس هتفرحك وناس هتنصب عليك.","s":"money","l":"ar","n":{"s":{"t":["بعد شهور من التوفير بقى عندك مبلغ مش كبير. صاحبك ماجد بيقولك: \"الفلوس اللي في الحساب بتخسر قيمتها كل شهر، لازم تستثمرها.\"","بتفتح الموبايل وبتلاقي ألف عرض: ذهب، عملات رقمية، شهادات بنكية، وعروض \"ضاعف فلوسك في أسبوع\"."],"c":[{"l":"أقرا وأتعلم الأول قبل ما أحط جنيه","n":"learn"},{"l":"أجرب عرض \"المضاعفة\" بمبلغ صغير بس","n":"scam"},{"l":"أقسم الفلوس على أكتر من حاجة","n":"split"}]},"learn":{"t":["بتقضي أسبوع بتتعلم: الفرق بين الاستثمار والمضاربة، وإن العائد العالي معناه مخاطرة عالية. بتفهم إن \"الأمان\" و\"العائد الكبير\" ما بيجوش مع بعض."],"c":[{"l":"أحدد هدفي ومدة استثماري الأول","n":"goal","s":["plan"]},{"l":"أقرر إني مش متأكد وأفضّل أوفّر أكتر","n":"e_safe"}]},"goal":{"t":["بتحدد: \"٣ سنين، وأنا مستعد أستحمل خسارة مؤقتة.\" بتعرف إن الخطة ده بتخلي كل قرار أسهل."],"c":[{"l":"أقسم المبلغ بين شهادات وذهب وجزء صغير أتعلم بيه","n":"split","s":["diverse"]},{"l":"أحط كل الفلوس في حاجة واحدة أنا واثق فيها","n":"allin"}]},"scam":{"t":["العرض بيقولك: \"حط ٥٠٠٠ واطلع ١٠٠٠٠ في أسبوعين.\" بتحط مبلغ صغير تجربة. الأسبوع الأول يرجّعلك مبلغ ربح بسيط. بتحس إن العرض حقيقي."],"c":[{"l":"أزوّد المبلغ على أساس إنه شغال","n":"bigger"},{"l":"أسحب الربح وأخرج","n":"cash"}]},"bigger":{"t":["بتحط مبلغ أكبر بكتير. بعد أسبوع الموقع بيقفل، والمجموعة اللي كنت فيها بتتحذف. الفلوس كلها راحت."],"c":[],"e":["bad","المضاعفة اللي ما اتضاعفتش"]},"cash":{"t":["بتسحب الربح، لكن الموقع بيرفض السحب بحجة \"رسوم\". بتفهم إن الربح الأول كان طُعم. بتخسر المبلغ الصغير، بس بتنجو من الأكبر."],"c":[],"e":["neutral","الطُعم"]},"split":{"t":["بتوزع المبلغ: جزء في شهادة بنكية، جزء في الذهب، وجزء صغير في حاجة أنت عايز تتعلمها. مش هتبقى مليونير بكرة، لكن مفيش حاجة هتضيع كلها."],"c":[{"l":"أراقب كل شهر وما أغيّرش كل ما السوق يتحرك","n":"hold"},{"l":"أبيع أي حاجة تنزل وأشتري أي حاجة تطلع","n":"churn"}]},"hold":{"t":["بعد سنة الشهادة بتدّيك عائد ثابت، والذهب اتحرك لفوق ولتحت وفي الآخر ربح بسيط. الجزء الصغير خسر شوية، لكنك اتعلمت منه."],"c":[{"l":"أكمل بنفس الخطة وأزود قدر ما أقدر كل شهر","n":"e_good","r":["diverse"]},{"l":"أكمل بنفس الخطة","n":"e_ok"},{"l":"أبدأ أدرس أصل شركة وأفهم قوائمها قبل ما أحط فيها","n":"e_secret","st":["money",200]}]},"churn":{"t":["كل ما حاجة تنزل بتبيع، وكل ما حاجة تطلع بتشتري. بعد ٣ شهور بتلاقي إنك دفعت رسوم كتير وبقيت خاسر من غير سبب واضح."],"c":[],"e":["bad","كثرة التقلّب"]},"allin":{"t":["بتحط كل الفلوس في حاجة واحدة. بعد شهرين سعرها بينزل ٣٠٪. بتقلق جدًا وبتبيع في القاع."],"c":[],"e":["bad","كل البيض في سلة"]},"e_safe":{"t":["بتقرر تستنى وتوفّر أكتر وتتعلم أكتر. بعد ٦ شهور بتبقى جاهز بمبلغ أكبر وفهم أحسن. التأجيل هنا كان قرار ذكي مش خوف."],"c":[],"e":["neutral","الصبر قرار"]},"e_ok":{"t":["بعد ٣ سنين مبلغك زاد بشكل مقبول. مش ثروة، لكن أكتر من لو سبته في الحساب. وأهم حاجة: اتعلمت إن الاستثمار عملية مش ضربة حظ."],"c":[],"e":["neutral","نمو هادئ"]},"e_good":{"t":["بعد ٣ سنين مبلغك اتضاعف تقريبًا بفضل الإضافة الشهرية والتنويع. كل مرة صاحبك بيحكيلك عن \"عرض مضاعفة\" بتبتسم وبتقوله اللي اتعلمته."],"c":[],"e":["good","التنويع والانتظام"]},"e_secret":{"t":["بتتعلم تقرا قوائم الشركات وتفهم الأرباح والديون. بعد سنتين بتبقى مرجع عند صحابك في الاستثمار البسيط. العلم ده أغلى من أي ربح مؤقت."],"c":[],"e":["secret","المستثمر اللي بيفهم"]}}},{"id":"tr","t":"قطار الصعيد","d":"رحلة ليلية بالقطار وحقيبة مجهولة. إنت الوحيد اللي لاحظت، فهتتصرف إزاي؟","s":"create","l":"ar","n":{"s":{"t":["القطار مسافر من القاهرة لأسوان في ليلة هادية. أنت في عربة النوم، وبتحاول تذاكر. فجأة تلاحظ إن في الممر حقيبة جلدية قديمة محدش واخد باله منها.","الراكب اللي قدامك بيبص عليها بسرعة وبعدين بيبعد عينه."],"c":[{"l":"أفحص الحقيبة بنفسي","n":"look"},{"l":"أسأل الراكب اللي قدامي إن كانت حقيبته","n":"ask"},{"l":"أبلّغ المراقب بتاع القطار","n":"guard"}]},"look":{"t":["الحقيبة مقفولة بقفل صغير. عليها اسم مكتوب بخط باهت: \"سليم\". جواها صوت خفيف زي ورق."],"c":[{"l":"أرجع وأسأل عن \"سليم\" في العربات","n":"hunt","s":["name"]},{"l":"أحاول أفتح القفل","n":"lock"}]},"ask":{"t":["الراكب بيتوتر: \"لا مش بتاعتي.\" وبعدين بيقوم بسرعة بيتمشى في اتجاه العربة الأخيرة."],"c":[{"l":"أتبعه من بعيد","n":"follow"},{"l":"أقعد وأقول مش شغلي","n":"e_quiet"}]},"guard":{"t":["المراقب بيبص للحقيبة بشك، وبعدين بيطلب منك تستنى. بعد دقيقتين بيرجع ومعاه ضابط شرطة صغير في القطار."],"c":[{"l":"أحكيلهم اللي شفته بالتفصيل","n":"detail"}]},"lock":{"t":["القفل بسيط. بعد محاولات بتفتحه: جواه دفتر ملاحظات قديم وصور وخريطة لأسوان عليها علامة حمراء."],"c":[{"l":"أقرا الدفتر","n":"diary","s":["diary"]},{"l":"أقفل الحقيبة وأسلّمها للمراقب","n":"guard"}]},"hunt":{"t":["بتمشي بين العربات وبتسأل بحذر. في العربة الثالثة راجل كبير بيسمع الاسم وبيتغيّر وشه: \"سليم ده كان عندي زمان. من فين جبت الاسم؟\""],"c":[{"l":"أحكيله عن الحقيبة","n":"old"}]},"follow":{"t":["الراكب بيدخل الحمام ويقفل الباب. بعد دقيقتين بيخرج وهو لابس جاكت تاني ومعاه حقيبة صغيرة."],"c":[{"l":"أمشي وراه لحد باب القطار","n":"door"},{"l":"أبلّغ المراقب","n":"guard","s":["suspect"]}]},"detail":{"t":["بتحكي: الحقيبة، الاسم، والراكب المتوتر. الضابط بيدوّن، وبعدها بيقولك: \"كويس إنك بلّغت. هنفتحها قدام الجميع.\""],"c":[{"l":"أحضر معاهم لأني أنا اللي لاحظت","n":"e_good","r":["suspect"]},{"l":"أرجع لمكاني وأسيبهم","n":"e_ok"}]},"diary":{"t":["بتقرا الدفتر: هو يوميات مسافر بيحكي عن رحلة قديمة لأسوان وعن كنز صغير مخفي في معبد. الخريطة بتشرح مكان محدد."],"c":[{"l":"أقرر أسلّم الدفتر للمراقب في الصبح","n":"e_ok"},{"l":"أقرر أروح المكان على الخريطة","n":"e_secret","st":["create",150]}]},"old":{"t":["الراجل الكبير: \"سليم كان صاحبي، مات من سنين. كان بيحاول يوصل لدفتر ضاع منه.\" عيونه بتلمع بالدموع."],"c":[{"l":"أرجع له الدفتر والحقيبة","n":"e_good"},{"l":"أحتفظ بالدفتر لأني اكتشفته أنا","n":"e_bad"}]},"door":{"t":["الراكب بيقف عند باب القطار وبيطلع حاجة من جيبه. بتشوف ورقة. بيرميها من الشباك، وبيرجع بسرعة."],"c":[{"l":"أروح أجيب الورقة","n":"e_ok"},{"l":"أمسكه وأنادي المراقب","n":"e_good"}]},"e_quiet":{"t":["بتكمل مذاكرة. في الصبح بتسمع إن حد اتسرق في الليلة دي. بتفكر إنك كنت تقدر تنبّه، وبتتعلم إن الملاحظة بتفرق."],"c":[],"e":["bad","اللي لاحظ وسكت"]},"e_ok":{"t":["القصة بتنتهي من غير حلّ واضح. الحقيبة بتتسلم والناس بتروح. بتفضل بتفكر في سر الدفتر لأسابيع."],"c":[],"e":["neutral","لغز ناقص"]},"e_good":{"t":["الحقيبة بترجع لصاحبها الحقيقي، وبتتحل مشكلة. الناس في القطار بتشكرك، والمراقب بيقولك: \"الدنيا محتاجة ناس بتلاحظ.\""],"c":[],"e":["good","الملاحِظ الصادق"]},"e_bad":{"t":["بتحتفظ بالدفتر. بعد أسبوع بتحس بثقله على ضميرك. بتفهم إن الاكتشاف مش ملكية، وإن الدفتر كان ليه صاحب."],"c":[],"e":["bad","الضمير التقيل"]},"e_secret":{"t":["في أسوان بتلاقي المكان على الخريطة: معبد صغير مهجور. جواه صندوق خشبي فيه رسائل ومخطوطات قديمة. بتبلّغ الجهات المختصة، وباسمك بيتسجل الاكتشاف."],"c":[],"e":["secret","الكنز المنسي"]}}}];
@@ -2695,6 +2707,11 @@ function rdInit(){
   if(!r.st||typeof r.st!=='object')r.st={};
   if(!r.cur||typeof r.cur!=='object')r.cur={};
   if(!r.xd||typeof r.xd!=='object')r.xd={d:'',x:0};
+  if(!Array.isArray(r.bk))r.bk=[];
+  if(!(r.goal>0))r.goal=12;
+  ['rx','qd','cd'].forEach(k=>{if(!r[k]||typeof r[k]!=='object')r[k]={d:'',x:0,n:0};});
+  if(!r.sess||typeof r.sess!=='object')r.sess=null;
+  r.bk.forEach(b=>{if(!b.log)b.log={};if(!b.pl)b.pl={};if(!Array.isArray(b.q))b.q=[];});
 }
 const rdS=id=>STORIES.find(s=>s.id===id);
 const rdEnds=s=>Object.keys(s.n).filter(k=>s.n[k].e);
@@ -2763,7 +2780,7 @@ function rdText(p,ex,en){
   return esc(p).replace(/\{([^|}]+)\|([^}]+)\}/g,(m,w,ar)=>{
     RDTK.push({w:w.replace(/&#39;/g,"'"),m:ar,ex});return '<button class="rdw" data-act="rdw" data-v="'+(RDTK.length-1)+'">'+w+'</button>';});
 }
-function vRead(){
+function vStories(){
   RDTK=[];
   const sid=ui.rd.sid;
   if(!sid){
@@ -2794,6 +2811,484 @@ function vRead(){
   return h;
 }
 
+/* ---------- reading: the book shelf ---------- */
+const RCAP=80,RCMAX=3;
+const rbH=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h;};
+const rbB=id=>S.rd.bk.find(b=>b.id===id);
+const rbNeed=c=>Math.max(1,Math.ceil(c.p/3));
+const rbDone=b=>b.ch.filter(c=>c.done).length;
+const rbWords=t=>String(t).trim().split(/\s+/).filter(Boolean).length;
+const rbFmt=ms=>{const s=Math.max(0,Math.floor(ms/1000));return String(Math.floor(s/3600)).padStart(2,'0')+':'+String(Math.floor(s/60)%60).padStart(2,'0')+':'+String(s%60).padStart(2,'0');};
+const rbNorm=s=>String(s).toLowerCase().replace(/[ً-ٰٟ]/g,'').replace(/[إأآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/[^\p{L}\p{N}]/gu,'');
+function rbLev(a,b){const m=a.length,n=b.length,D=[];for(let i=0;i<=m;i++){D[i]=[i];}for(let j=1;j<=n;j++)D[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)D[i][j]=Math.min(D[i-1][j]+1,D[i][j-1]+1,D[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return D[m][n];}
+function rbSame(a,b){const x=rbNorm(a),y=rbNorm(b);return !!x&&(x===y||(y.length>=6&&rbLev(x,y)<=1));}
+function rbCloze(text){
+  const toks=String(text).split(/\s+/).filter(Boolean);
+  const cand=toks.map((t,i)=>({t:t.replace(/[^\p{L}\p{N}]/gu,''),i})).filter(x=>x.t.length>=5);
+  if(!cand.length)return null;
+  const k=cand[Math.floor(Math.random()*cand.length)],lo=Math.max(0,k.i-6),hi=Math.min(toks.length,k.i+7),w=toks.slice(lo,hi);
+  w[k.i-lo]='_____';
+  return {mask:(lo?'… ':'')+w.join(' ')+(hi<toks.length?' …':''),ans:k.t};
+}
+const rbMin=day=>S.rd.bk.reduce((a,b)=>a+(b.log[day]||0),0);
+function rbStreak(){let n=0,i=rbMin(dayKey())>=10?0:1;for(;i<400;i++){if(rbMin(dayKey(daysAgo(i)))>=10)n++;else break;}return n;}
+function rbStats(){const bk=(S.rd&&S.rd.bk)||[];let m=0;for(let i=0;i<7;i++){const dk=dayKey(daysAgo(i));m+=bk.reduce((a,b)=>a+((b.log&&b.log[dk])||0),0);}return {b:bk.filter(b=>b.boss).length,m};}
+function rbPay(xp,label,force){
+  const t=dayKey(),r=S.rd;if(r.rx.d!==t)r.rx={d:t,x:0};
+  const g=force?xp:Math.max(0,Math.min(xp,RCAP-r.rx.x));
+  if(g>0){const before=snap();if(!force)r.rx.x+=g;S.entries.push({id:uid(),day:t,ts:Date.now(),kind:'read',stat:'create',xp:g,gold:Math.round(g/2),label:label});gainToast(g,Math.round(g/2));celebrate(before);}
+  return g;
+}
+function rbRecall(){const out=[],t=dayKey();S.rd.bk.forEach(b=>b.ch.forEach((c,i)=>{if(c.done&&c.rc&&!c.rc.r&&dayKey(new Date(c.done))!==t)out.push({b:b.id,i});}));return out;}
+function rbBossReady(b){return b.ch.length&&rbDone(b)===b.ch.length&&!b.boss&&b.all!==dayKey();}
+function rbAdd(){
+  const f=ui.rd.f,t=(f.t||'').trim(),a=(f.a||'').trim(),pg=parseInt(f.p,10);let n=parseInt(f.c,10);
+  if(!t){toast('اكتب اسم الكتاب');return;}
+  if(!(pg>=5&&pg<=3000)){toast('عدد الصفحات بين 5 و3000');return;}
+  if(S.rd.bk.length>=30){toast('وصلت الحد الأقصى للكتب');return;}
+  if(!(n>=1))n=Math.max(1,Math.round(pg/25));n=Math.min(40,n,pg);
+  const base=Math.floor(pg/n),rest=pg-base*n,ch=[];
+  for(let i=0;i<n;i++)ch.push({t:'الفصل '+(i+1),p:base+(i<rest?1:0),done:0,sum:'',rc:null});
+  const b={id:uid(),t:t.slice(0,60),a:a.slice(0,40),pg,ch,page:0,pool:0,log:{},pl:{},q:[],st:'want',rate:0,verdict:'',boss:0,all:'',added:Date.now(),fin:0};
+  S.rd.bk.push(b);ui.rd.bk=b.id;ui.rd.view='book';ui.rd.f={};save();render();window.scrollTo(0,0);
+}
+function rbStop(){
+  const s=S.rd.sess;if(!s)return;const b=rbB(s.bid);
+  const mins=Math.min(120,Math.floor((Date.now()-s.t0)/60000));S.rd.sess=null;
+  if(b){const dk=dayKey();if(mins>=1){b.pool+=mins;b.log[dk]=(b.log[dk]||0)+mins;}const pg=parseInt(ui.rd.f.e,10);if(pg>0&&pg<=b.pg)b.page=pg;
+    const ks=Object.keys(b.log).sort();if(ks.length>60)ks.slice(0,ks.length-60).forEach(k=>delete b.log[k]);}
+  ui.rd.f.e='';toast(mins>=1?'اتسجّل '+mins+' دقيقة قراءة':'الجلسة أقل من دقيقة، ما اتسجّلتش');save();render();
+}
+function rbFinish(){
+  const b=rbB(ui.rd.bk),i=b.ch.findIndex(c=>!c.done),c=b.ch[i],f=ui.rd.f,sum=(f.s||'').trim(),t=(f.ct||'').trim();
+  const dk=dayKey();if(S.rd.cd.d!==dk)S.rd.cd={d:dk,n:0};
+  if(S.rd.cd.n>=RCMAX){toast('وصلت حد '+RCMAX+' فصول في اليوم. كمّل بكرة');return;}
+  if(b.pool<rbNeed(c)){toast('محتاج '+rbNeed(c)+' دقيقة قراءة مسجّلة بالتايمر');return;}
+  if(rbWords(sum)<20){toast('الملخص لازم يكون 20 كلمة على الأقل بكلماتك');return;}
+  if(b.ch.some(x=>x.done&&rbNorm(x.sum)===rbNorm(sum))){toast('الملخص ده مكرر');return;}
+  b.pool-=rbNeed(c);c.done=Date.now();c.sum=sum.slice(0,400);if(t)c.t=t.slice(0,40);c.rc={};
+  b.pl[dk]=(b.pl[dk]||0)+c.p;b.page=Math.max(b.page,b.ch.slice(0,i+1).reduce((a,x)=>a+x.p,0));b.st='now';S.rd.cd.n++;
+  const xp=Math.max(6,Math.min(20,Math.round(c.p/2)))+(rbWords(sum)>=40?3:0);
+  const g=rbPay(xp,'قراءة: '+b.t+' · '+c.t);
+  if(rbDone(b)===b.ch.length){b.all=dk;toast('خلصت الكتاب. الزعيم بيصحى بكرة');}
+  ui.rd.f={};save();render();window.scrollTo(0,0);
+}
+function rbQuiz(kind,bid){
+  let items=[];
+  if(kind==='qq'){
+    const all=[];S.rd.bk.forEach(b=>b.q.forEach(q=>all.push(q.x)));
+    all.sort(()=>Math.random()-.5);all.forEach(x=>{if(items.length<5){const z=rbCloze(x);if(z)items.push(z);}});
+    if(items.length<3){toast('محتاج 3 اقتباسات على الأقل (كل واحد فيه كلمة من 5 حروف أو أكتر)');return;}
+  }else{
+    const b=rbB(bid);b.ch.slice().sort(()=>Math.random()-.5).forEach(c=>{if(items.length<5){const z=rbCloze(c.sum);if(z){z.src=c.t;items.push(z);}}});
+    if(!items.length){toast('مفيش ملخصات كفاية');return;}
+  }
+  ui.rd.qz={kind,bid,q:items,i:0,ok:0,fb:null,end:null};ui.rd.view='qz';ui.rd.f.z='';render();window.scrollTo(0,0);
+}
+function rbQzNext(){
+  const Z=ui.rd.qz;Z.fb=null;Z.i++;ui.rd.f.z='';
+  if(Z.i>=Z.q.length){
+    if(Z.kind==='qq'){const t=dayKey();if(S.rd.qd.d!==t)S.rd.qd={d:t,x:0};const x=Math.min(Z.ok*2,10-S.rd.qd.x);S.rd.qd.x+=Math.max(0,x);Z.end={xp:Math.max(0,x?rbPay(x,'اختبار الاقتباسات · '+Z.ok+' صح'):0)};}
+    else{const b=rbB(Z.bid),need=Math.ceil(Z.q.length*.6);
+      if(Z.ok>=need){b.boss=1;b.fin=Date.now();b.st='done';Z.end={win:true,xp:rbPay(40,'هزمت زعيم كتاب: '+b.t,true)};}
+      else Z.end={win:false,xp:0};}
+    save();
+  }
+  render();window.scrollTo(0,0);
+}
+function rbClick(a,id,v){
+  const f=ui.rd.f;
+  switch(a){
+    case 'rbtab':ui.rd.tab=v;ui.rd.sid=null;render();break;
+    case 'rbhome':ui.rd.view='shelf';ui.rd.fin=false;ui.rd.rc=null;render();window.scrollTo(0,0);break;
+    case 'rbnew':ui.rd.view='add';ui.rd.f={};render();break;
+    case 'rbadd':rbAdd();break;
+    case 'rbopen':ui.rd.bk=id;ui.rd.view='book';ui.rd.fin=false;ui.rd.del=false;render();window.scrollTo(0,0);break;
+    case 'rbstart':if(S.rd.sess){toast('عندك جلسة شغالة');break;}S.rd.sess={bid:ui.rd.bk,t0:Date.now()};rbB(ui.rd.bk).st='now';save();render();break;
+    case 'rbstop':rbStop();break;
+    case 'rbfin':ui.rd.fin=true;ui.rd.f={};{const b=rbB(ui.rd.bk),c=b.ch.find(x=>!x.done);if(c)ui.rd.f.ct=c.t;}render();break;
+    case 'rbfinx':ui.rd.fin=false;render();break;
+    case 'rbfinok':rbFinish();break;
+    case 'rbq':{const x=(f.qx||'').trim();if(x.length<8){toast('اكتب الاقتباس');break;}const b=rbB(ui.rd.bk);if(b.q.length>=40){toast('وصلت الحد الأقصى للاقتباسات');break;}b.q.push({id:uid(),x:x.slice(0,200),p:parseInt(f.qp,10)||0,ts:Date.now()});f.qx='';f.qp='';save();render();break;}
+    case 'rbqdel':{const b=rbB(ui.rd.bk);b.q=b.q.filter(q=>q.id!==id);save();render();break;}
+    case 'rbgoal':S.rd.goal=parseInt(v,10);save();render();break;
+    case 'rbdel':if(!ui.rd.del){ui.rd.del=true;toast('اضغط تاني للتأكيد');render();}else{if(S.rd.sess&&S.rd.sess.bid===ui.rd.bk)S.rd.sess=null;S.rd.bk=S.rd.bk.filter(b=>b.id!==ui.rd.bk);ui.rd.view='shelf';ui.rd.del=false;save();render();}break;
+    case 'rbrate':{const b=rbB(ui.rd.bk);b.rate=parseInt(v,10);b.verdict=(f.vd||b.verdict||'').slice(0,80);save();render();break;}
+    case 'rbvd':{const b=rbB(ui.rd.bk);b.verdict=(f.vd||'').slice(0,80);save();toast('اتحفظ');break;}
+    case 'rbboss':rbQuiz('boss',ui.rd.bk);break;
+    case 'rbqq':rbQuiz('qq');break;
+    case 'rbqzc':{const Z=ui.rd.qz;if(!Z||Z.fb)break;const q=Z.q[Z.i],ok=rbSame(f.z||'',q.ans);if(ok)Z.ok++;Z.fb={ok};render();break;}
+    case 'rbqzn':rbQzNext();break;
+    case 'rbqzx':ui.rd.qz=null;ui.rd.view=ui.rd.bk&&ui.rd.qzfrom==='book'?'book':'shelf';render();break;
+    case 'rbrc':{const r=rbRecall();if(!r.length)break;ui.rd.rc={b:r[0].b,i:r[0].i,shown:false};ui.rd.view='rc';f.r='';render();window.scrollTo(0,0);break;}
+    case 'rbrcs':{if(rbWords(f.r||'')<12){toast('اكتب 12 كلمة على الأقل من ذاكرتك');break;}ui.rd.rc.shown=true;render();break;}
+    case 'rbrate2':{const R=ui.rd.rc,b=rbB(R.b),c=b.ch[R.i];c.rc.r=parseInt(v,10);rbPay([0,2,5,8][c.rc.r],'تذكّر فصل: '+b.t+' · '+c.t);save();f.r='';const n=rbRecall();if(n.length)ui.rd.rc={b:n[0].b,i:n[0].i,shown:false};else{ui.rd.rc=null;ui.rd.view='shelf';}render();window.scrollTo(0,0);break;}
+  }
+}
+function rbInput(t){ui.rd.f[t.id.slice(3)]=t.value;}
+/* ----- views ----- */
+const rbBar=(v,t,c)=>bar(v,t,c||'var(--glow)');
+function rbShelf(){
+  const bk=S.rd.bk;if(!bk.length)return '<p class="hint" style="text-align:center;margin:20px 0">الرف فاضي. ضيف أول كتاب.</p>';
+  let rows='';
+  for(let i=0;i<bk.length;i+=7){
+    rows+='<div class="rbshelf">'+bk.slice(i,i+7).map(b=>{
+      const h=96+Math.min(64,Math.round(b.pg/7)),w=26+Math.min(16,Math.round(b.pg/70)),hue=rbH(b.t)%360;
+      return '<button class="rbk'+(b.boss?' fin':b.st==='now'?' now':'')+'" data-act="rbopen" data-id="'+b.id+'" style="height:'+h+'px;width:'+w+'px;--h:'+hue+'" aria-label="'+esc(b.t)+'"><span>'+esc(b.t)+'</span></button>';}).join('')+'</div>';
+  }
+  return rows;
+}
+function vBooks(){
+  const R=S.rd,V=ui.rd.view;
+  if(V==='add')return rbAddView();
+  if(V==='book'&&rbB(ui.rd.bk))return rbBookView(rbB(ui.rd.bk));
+  if(V==='qz'&&ui.rd.qz)return rbQzView();
+  if(V==='rc'&&ui.rd.rc)return rbRcView();
+  const yr=new Date().getFullYear(),done=R.bk.filter(b=>b.boss&&new Date(b.fin).getFullYear()===yr).length,goal=R.goal||12;
+  let h='<section class="panel"><div class="ptitle">هدف '+N(yr)+'<span class="sp"></span><span class="side">'+N(done+' / '+goal)+' كتاب</span></div>'+rbBar(done,goal,'var(--gold)')+'<div class="chips" style="margin-top:10px">'+[6,12,24,52].map(n=>'<button class="chip" data-act="rbgoal" data-v="'+n+'" aria-pressed="'+(goal===n)+'">'+N(n)+'</button>').join('')+'</div></section>';
+  if(R.sess){const b=rbB(R.sess.bid);if(b)h+='<button class="rdc" data-act="rbopen" data-id="'+b.id+'"><b>جلسة قراءة شغالة</b> · '+esc(b.t)+' <span class="num" id="rbtm" style="direction:ltr;float:left">'+rbFmt(Date.now()-R.sess.t0)+'</span></button>';}
+  const qs=[];R.bk.forEach(b=>b.q.forEach(q=>qs.push(q)));
+  if(qs.length){const q=qs[rbH(dayKey())%qs.length];h+='<section class="panel"><div class="ptitle">اقتباس اليوم</div><p style="margin:0;line-height:1.9;font-size:16px">«'+esc(q.x)+'»</p></section>';}
+  const rc=rbRecall().length;
+  h+='<section class="panel"><div class="ptitle">تدريب الذاكرة</div><div class="row"><button class="btn'+(rc?' fill':'')+'" data-act="rbrc" style="flex:1"'+(rc?'':' disabled')+'>تذكّر فصول الأمس '+N(rc)+'</button><button class="btn" data-act="rbqq" style="flex:1">اختبار اقتباساتك</button></div><p class="hint" style="margin:10px 0 0">الخبرة بتيجي من إنك تفتكر وتلخّص، مش من إنك "تقرأ". كل فصل لازم تايمر قراءة وملخص بكلماتك.</p></section>';
+  h+='<div class="ptitle" style="margin:14px 0 4px">رفّك<span class="sp"></span><button class="btn sm fill" data-act="rbnew">+ كتاب</button></div>'+rbShelf();
+  const mins=[],mx=Math.max(30,...Array.from({length:14},(_,i)=>rbMin(dayKey(daysAgo(13-i)))));
+  for(let i=13;i>=0;i--)mins.push(rbMin(dayKey(daysAgo(i))));
+  const tp=R.bk.reduce((a,b)=>a+b.ch.filter(c=>c.done).reduce((s,c)=>s+c.p,0),0),tm=R.bk.reduce((a,b)=>a+Object.values(b.log).reduce((s,x)=>s+x,0),0);
+  h+='<section class="panel"><div class="ptitle">قراءتك آخر 14 يوم</div><div class="rbbars">'+mins.map(m=>'<i style="height:'+Math.max(3,Math.round(m/mx*60))+'px" class="'+(m>=10?'on':'')+'"></i>').join('')+'</div><div class="tgt" style="margin:10px 0 0"><span>أيام متتالية بقراءة 10 دقايق+</span><b class="num">'+rbStreak()+'</b></div><div class="tgt" style="margin:6px 0 0"><span>إجمالي القراءة</span><b class="num">'+N(tm)+' دقيقة</b></div>'+(tm>=30?'<div class="tgt" style="margin:6px 0 0"><span>سرعتك المتوسطة</span><b class="num">'+(tp/tm).toFixed(1)+' صفحة/دقيقة</b></div>':'')+'</section>';
+  const lg=typeof live!=='undefined'&&live.league?live.league:{},rows=[];
+  Object.keys(lg).forEach(k=>{const x=lg[k];if(!x||typeof x!=='object'||!x.rd||typeof x.rd!=='object'||k===ctx.uid)return;rows.push({n:nm(x.n),b:nz(x.rd.b,500),m:nz(x.rd.m,20000)});});
+  const me=rbStats();rows.push({n:S.name||'انت',b:me.b,m:me.m,me:true});rows.sort((a,b)=>b.m-a.m||b.b-a.b);
+  if(rows.length>1)h+='<section class="panel"><div class="ptitle">تحدي القراءة الأسبوعي<span class="sp"></span><span class="side">دقايق آخر 7 أيام</span></div>'+rows.map((r,i)=>'<div class="lb'+(r.me?' me':'')+'"><span class="pos'+(i===0&&r.m>0?' g':'')+'">'+(i+1)+'</span><div><div class="nmx">'+esc(r.n)+(r.me?' (انت)':'')+'</div><div class="w">'+N(r.b)+' كتاب خلّصها</div></div><span class="num" style="font-weight:700;color:var(--glow)">'+r.m+'</span></div>').join('')+'</section>';
+  return h;
+}
+function rbAddView(){
+  const f=ui.rd.f;
+  return '<section class="panel"><div class="ptitle">كتاب جديد</div><label class="lbl" for="rbxt" style="margin-top:0">اسم الكتاب</label><input class="in" id="rbxt" maxlength="60" value="'+esc(f.t||'')+'"><label class="lbl" for="rbxa">المؤلف (اختياري)</label><input class="in" id="rbxa" maxlength="40" value="'+esc(f.a||'')+'"><div class="row"><div style="flex:1"><label class="lbl" for="rbxp">عدد الصفحات</label><input class="in" id="rbxp" inputmode="numeric" maxlength="4" value="'+esc(f.p||'')+'"></div><div style="flex:1"><label class="lbl" for="rbxc">عدد الفصول (اختياري)</label><input class="in" id="rbxc" inputmode="numeric" maxlength="2" value="'+esc(f.c||'')+'" placeholder="تلقائي"></div></div><p class="hint" style="margin:10px 0 0">لو سبت الفصول فاضية هنقسّم الكتاب لفصول من حوالي 25 صفحة. تقدر تغيّر اسم كل فصل وقت ما تخلّصه.</p><div class="row" style="margin-top:12px"><button class="btn fill" data-act="rbadd" style="flex:1">إضافة للرف</button><button class="btn" data-act="rbhome" style="flex:1">رجوع</button></div></section>';
+}
+function rbBookView(b){
+  const f=ui.rd.f,R=S.rd,i=b.ch.findIndex(c=>!c.done),c=b.ch[i],dn=rbDone(b),mine=R.sess&&R.sess.bid===b.id;
+  let h='<section class="panel"><div class="ptitle">'+esc(b.t)+'<span class="sp"></span><span class="side">'+(b.boss?'اتختم':b.st==='now'?'بتقرأه':'على الرف')+'</span></div>'+(b.a?'<p class="hint" style="margin:0 0 8px">'+esc(b.a)+'</p>':'')+rbBar(dn,b.ch.length,b.boss?'var(--gold)':'var(--glow)')+'<div class="barcap"><span>'+N(dn+' / '+b.ch.length)+' فصل</span><span>'+N(b.pg)+' صفحة</span></div></section>';
+  if(!b.boss){
+    h+='<section class="panel"><div class="ptitle">جلسة القراءة</div>';
+    if(mine)h+='<div class="rbtm num" id="rbtm">'+rbFmt(Date.now()-R.sess.t0)+'</div><label class="lbl" for="rbxe">وصلت لأي صفحة؟ (اختياري)</label><input class="in" id="rbxe" inputmode="numeric" maxlength="4" value="'+esc(f.e||'')+'"><button class="btn fill block" data-act="rbstop" style="margin-top:10px">أنهي الجلسة</button>';
+    else if(R.sess)h+='<p class="hint" style="margin:0">عندك جلسة شغالة في كتاب تاني. أنهيها الأول.</p>';
+    else h+='<button class="btn fill block" data-act="rbstart">ابدأ جلسة قراءة</button><p class="hint" style="margin:10px 0 0">التايمر بيسجّل الدقايق الفعلية (حد أقصى ساعتين للجلسة). رصيدك: <b class="num">'+b.pool+'</b> دقيقة.</p>';
+    h+='</section>';
+  }
+  if(c&&!b.boss){
+    if(ui.rd.fin){
+      const need=rbNeed(c),ok=b.pool>=need;
+      h+='<section class="panel"><div class="ptitle">خلّصت '+esc(c.t)+'؟</div><div class="tgt" style="margin:0 0 6px"><span>رصيد القراءة المطلوب</span><b class="num" style="color:'+(ok?'var(--ok)':'var(--bad)')+'">'+b.pool+' / '+need+' دقيقة</b></div><label class="lbl" for="rbxct">اسم الفصل</label><input class="in" id="rbxct" maxlength="40" value="'+esc(f.ct||c.t)+'"><label class="lbl" for="rbxs">لخّص الفصل بكلماتك (20 كلمة على الأقل)</label><textarea class="in lt" id="rbxs" maxlength="400" style="min-height:120px">'+esc(f.s||'')+'</textarea><p class="hint" style="margin:6px 0 0">الملخص ده هو اللي هتتختبر منه بعد كده، فاكتبه كأنك بتشرحه لصاحبك.</p><div class="row" style="margin-top:12px"><button class="btn fill" data-act="rbfinok" style="flex:1"'+(ok?'':' disabled')+'>تأكيد</button><button class="btn" data-act="rbfinx" style="flex:1">إلغاء</button></div></section>';
+    }else h+='<section class="panel"><div class="ptitle">الفصل الجاي</div><div class="tgt" style="margin:0 0 8px"><span>'+esc(c.t)+'</span><b class="num">'+N(c.p)+' صفحة</b></div><button class="btn fill block" data-act="rbfin">خلّصت الفصل ده</button></section>';
+  }
+  if(b.ch.length===dn&&!b.boss){
+    h+='<section class="panel"><div class="ptitle">زعيم الكتاب</div>'+(rbBossReady(b)?'<p class="hint" style="margin:0 0 10px">الزعيم هيسألك أسئلة من ملخصاتك إنت. لازم تجاوب على 60% صح عشان تهزمه.</p><button class="btn fill block" data-act="rbboss">واجه الزعيم</button>':'<p class="hint" style="margin:0">الزعيم بيصحى بكرة، عشان نختبر اللي فضل في دماغك بعد ليلة نوم.</p>')+'</section>';
+  }
+  if(b.boss){
+    h+='<section class="panel"><div class="ptitle">رأيك في الكتاب</div><div class="chips">'+[1,2,3,4,5].map(n=>'<button class="chip" data-act="rbrate" data-v="'+n+'" aria-pressed="'+(b.rate===n)+'">'+N(n)+' ★</button>').join('')+'</div><label class="lbl" for="rbxvd">جملة واحدة تلخّص رأيك</label><input class="in" id="rbxvd" maxlength="80" value="'+esc(f.vd!==undefined?f.vd:b.verdict)+'"><button class="btn sm" data-act="rbvd" style="margin-top:8px">حفظ</button></section>';
+  }
+  h+='<section class="panel"><div class="ptitle">الفصول</div>'+b.ch.map((x,k)=>x.done?'<details class="rbch done"><summary>'+esc(x.t)+' <span class="num">'+N(x.p)+' ص</span></summary><p style="margin:8px 0 0;line-height:1.8">'+esc(x.sum)+'</p></details>':'<div class="rbch"><span>'+esc(x.t)+'</span><span class="num hint" style="margin:0">'+N(x.p)+' ص</span></div>').join('')+'</section>';
+  h+='<section class="panel"><div class="ptitle">اقتباساتك<span class="sp"></span><span class="side">'+N(b.q.length)+'</span></div><textarea class="in lt" id="rbxqx" maxlength="200" placeholder="جملة عجبتك من الكتاب" style="min-height:70px">'+esc(f.qx||'')+'</textarea><div class="row" style="margin-top:8px"><input class="in" id="rbxqp" inputmode="numeric" maxlength="4" placeholder="رقم الصفحة" value="'+esc(f.qp||'')+'" style="flex:1"><button class="btn" data-act="rbq" style="flex:1">احفظ الاقتباس</button></div>'+b.q.slice().reverse().map(q=>'<div class="gyset" style="align-items:flex-start"><span style="line-height:1.8">«'+esc(q.x)+'»'+(q.p?' <span class="hint" style="margin:0">ص '+N(q.p)+'</span>':'')+'</span><button class="btn sm bad" data-act="rbqdel" data-id="'+q.id+'" aria-label="حذف">حذف</button></div>').join('')+'</section>';
+  h+='<div class="row"><button class="btn" data-act="rbhome" style="flex:1">رجوع للرف</button><button class="btn bad" data-act="rbdel" style="flex:1">'+(ui.rd.del?'تأكيد الحذف':'حذف الكتاب')+'</button></div>';
+  return h;
+}
+function rbQzView(){
+  const Z=ui.rd.qz,boss=Z.kind==='boss';
+  if(Z.i>=Z.q.length&&Z.end){
+    return '<section class="panel"><div class="ptitle">'+(boss?'زعيم الكتاب':'اختبار الاقتباسات')+'</div><div style="text-align:center;margin:14px 0"><div style="font-size:22px;font-weight:700;color:'+(boss?(Z.end.win?'var(--gold)':'var(--bad)'):'var(--glow)')+'">'+(boss?(Z.end.win?'هزمت الزعيم':'الزعيم غلبك المرة دي'):'خلص الاختبار')+'</div><p class="hint" style="margin:8px 0 0">إجابات صح: '+N(Z.ok+' / '+Z.q.length)+(Z.end.xp?' · +'+N(Z.end.xp)+' خبرة':'')+'</p>'+(boss&&!Z.end.win?'<p class="hint">راجع ملخصاتك وارجع تاني. مفيش خسارة.</p>':'')+'</div><button class="btn fill block" data-act="rbqzx">تمام</button></section>';
+  }
+  const q=Z.q[Z.i],fb=Z.fb;
+  return '<section class="panel"><div class="ptitle">'+(boss?'زعيم الكتاب':'اختبار اقتباساتك')+'<span class="sp"></span><span class="side">'+N((Z.i+1)+' / '+Z.q.length)+'</span></div>'+bar(Z.i+(fb?1:0),Z.q.length,boss?'var(--gold)':'var(--glow)')+'<p class="hint" style="margin:14px 0 6px">'+(boss?'اكمل الكلمة الناقصة من ملخصك لـ '+esc(q.src||''):'اكمل الكلمة الناقصة من اقتباسك')+'</p><div style="font-size:17px;line-height:1.9;margin-bottom:12px">'+esc(q.mask)+'</div><input class="in" id="rbxz" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" value="'+esc(ui.rd.f.z||'')+'"'+(fb?' disabled':'')+'>'+(fb?'<div class="proof" style="margin-top:12px"><b style="color:'+(fb.ok?'var(--ok)':'var(--bad)')+'">'+(fb.ok?'صح':'غلط')+'</b> · الكلمة: <b>'+esc(q.ans)+'</b></div><button class="btn fill block" data-act="rbqzn" style="margin-top:12px">'+(Z.i+1>=Z.q.length?'النتيجة':'التالي')+'</button>':'<button class="btn fill block" data-act="rbqzc" style="margin-top:12px">تحقق</button>')+'</section>';
+}
+function rbRcView(){
+  const R=ui.rd.rc,b=rbB(R.b),c=b.ch[R.i],f=ui.rd.f;
+  let h='<section class="panel"><div class="ptitle">تذكّر</div><p class="hint" style="margin:0 0 8px">'+esc(b.t)+' · '+esc(c.t)+'</p><p style="margin:0 0 10px">من غير ما تبص في الكتاب أو ملخصك، اكتب إيه اللي فاكره من الفصل ده.</p>';
+  h+='<textarea class="in lt" id="rbxr" style="min-height:130px"'+(R.shown?' disabled':'')+'>'+esc(f.r||'')+'</textarea>';
+  if(!R.shown)h+='<button class="btn fill block" data-act="rbrcs" style="margin-top:12px">اكشف ملخصي القديم</button>';
+  else h+='<div class="proof" style="margin-top:12px"><b>ملخصك وقت ما خلّصت الفصل</b><div style="margin-top:6px;line-height:1.8">'+esc(c.sum)+'</div></div><p class="hint" style="margin:10px 0 6px">قيّم نفسك بصراحة:</p><div class="row"><button class="btn" data-act="rbrate2" data-v="1" style="flex:1">نسيت معظمه</button><button class="btn" data-act="rbrate2" data-v="2" style="flex:1">فاكر جزء</button><button class="btn fill" data-act="rbrate2" data-v="3" style="flex:1">فاكر كويس</button></div>';
+  h+='<button class="btn sm" data-act="rbhome" style="margin-top:12px">رجوع</button></section>';
+  return h;
+}
+function vRead(){
+  if(ui.rd.sid)return vStories();
+  const seg=[['books','الكتب'],['stories','القصص']];
+  return '<div class="seg" role="tablist">'+seg.map(x=>'<button class="segb" role="tab" data-act="rbtab" data-v="'+x[0]+'" aria-pressed="'+(ui.rd.tab===x[0])+'">'+x[1]+'</button>').join('')+'</div>'+(ui.rd.tab==='stories'?vStories():vBooks());
+}
+setInterval(()=>{try{const e=document.getElementById('rbtm');if(e&&S.rd&&S.rd.sess)e.textContent=rbFmt(Date.now()-S.rd.sess.t0);}catch(x){}},1000);
+
+/* ---------- money game: merchant empire (just for fun, no XP) ---------- */
+const TCB=[
+ {id:'ks',n:'كشك الحي',c:15,i:.1},{id:'bq',n:'بقالة',c:110,i:.9},{id:'cw',n:'مغسلة سيارات',c:1200,i:8},
+ {id:'cf',n:'كافيه الجامعة',c:13000,i:52},{id:'mb',n:'محل موبايلات',c:150000,i:310},{id:'wk',n:'ورشة تصنيع',c:1.7e6,i:1800},
+ {id:'sh',n:'شركة شحن',c:2.4e7,i:11000},{id:'fc',n:'مصنع',c:3.8e8,i:68000},{id:'tw',n:'برج استثمار',c:6e9,i:420000}
+];
+const TCU=[
+ {id:'u1',n:'لافتة أحلى للكشك',c:500,t:'ks',m:2},{id:'u2',n:'عروض الحي في البقالة',c:2500,t:'bq',m:2},
+ {id:'u3',n:'تلميع وشمع للمغسلة',c:15000,t:'cw',m:2},{id:'u4',n:'قهوة مختصة للكافيه',c:150000,t:'cf',m:2},
+ {id:'u5',n:'خط صيانة الموبايلات',c:1.6e6,t:'mb',m:2},{id:'u6',n:'حملة إعلانية للكل',c:5e5,t:'all',m:1.5},
+ {id:'u7',n:'نظام محاسبة موحّد',c:1e7,t:'all',m:2},{id:'u8',n:'فريق إدارة محترف',c:2e8,t:'all',m:3},{id:'u9',n:'تصدير للخارج',c:5e9,t:'all',m:5}
+];
+const TCE=[['موسم دراسة والكافيه زحمة','cf',3],['صيف حار والمغاسل شغالة','cw',3],['عيد والبقالة بتبيع أكتر','bq',3],['إجازة والكشك مزدحم','ks',3],['موسم موبايلات جديد','mb',3],['طلبية كبيرة للورشة','wk',3],['حركة شحن نشطة','sh',3],['ركود اقتصادي في السوق','all',.5],['انتعاش عام في السوق','all',2]];
+const TCS=[{id:'a',n:'النيل للأدوية',b:100,p1:5.5,p2:1.7,f:.4},{id:'b',n:'الدلتا العقارية',b:250,p1:7.5,p2:2.1,f:2.1},{id:'c',n:'تك مصر',b:60,p1:4.2,p2:1.4,f:4.0},{id:'d',n:'ذهب الصعيد',b:500,p1:8.8,p2:2.4,f:5.3}];
+function tcInit(){
+  if(!S.tc||typeof S.tc!=='object')S.tc={};
+  const t=S.tc;
+  if(!(t.cash>=0))t.cash=20;
+  if(!(t.tot>=0))t.tot=0;
+  if(!(t.t>0))t.t=Date.now();
+  if(!t.n||typeof t.n!=='object')t.n={};
+  if(!t.up||typeof t.up!=='object')t.up={};
+  if(!t.sh||typeof t.sh!=='object')t.sh={};
+  if(!t.pr||typeof t.pr!=='object')t.pr={n:0};
+  if(!t.bn||typeof t.bn!=='object')t.bn={d:'',until:0};
+}
+function tcF(n){n=Math.floor(n);if(n<1000)return String(n);const u=['K','M','B','T','Qa','Qi'];let i=-1,v=n;while(v>=1000&&i<u.length-1){v/=1000;i++;}return v.toFixed(v<10?2:v<100?1:0)+u[i];}
+const tcF2=n=>n<10?n.toFixed(1):tcF(n);
+function tcEv(now){const b=Math.floor(now/600000),e=TCE[rbH('e'+b)%TCE.length];return (now-b*600000<300000)?{e,until:b*600000+300000}:null;}
+function tcMult(id,now){
+  const t=S.tc;let m=1+.1*t.pr.n;
+  TCU.forEach(u=>{if(t.up[u.id]&&(u.t==='all'||u.t===id))m*=u.m;});
+  const ev=tcEv(now);if(ev&&(ev.e[1]==='all'||ev.e[1]===id))m*=ev.e[2];
+  if(now<t.bn.until)m*=2;
+  return m;
+}
+function tcInc(now){let s=0;TCB.forEach(b=>{const n=S.tc.n[b.id]||0;if(n)s+=n*b.i*tcMult(b.id,now);});return s;}
+const tcCostK=(b,have,k)=>b.c*Math.pow(1.15,have)*(Math.pow(1.15,k)-1)/.15;
+function tcMax(b,have,cash){let k=0;while(k<2000&&tcCostK(b,have,k+1)<=cash)k++;return k;}
+function tcTick(){
+  const t=S.tc,now=Date.now(),dt=Math.max(0,Math.min((now-t.t)/1000,8*3600));
+  const g=tcInc(now)*dt;t.t=now;t.cash+=g;t.tot+=g;
+  if(dt>120&&g>0&&!ui.tcAwaySeen){ui.tcAway={m:Math.round(dt/60),g};}
+  ui.tcAwaySeen=true;return g;
+}
+function tcPrice(s,now){const m=now/60000;return Math.max(s.b*.45,s.b*(1+.35*Math.sin(m/s.p1+s.f)+.2*Math.sin(m/s.p2+s.f*2)));}
+function tcNet(now){let v=S.tc.cash;TCS.forEach(s=>{v+=(S.tc.sh[s.id]||0)*tcPrice(s,now);});return v;}
+function tcStats(){if(!S.tc)return {p:0,w:0};return {p:S.tc.pr.n,w:Math.round(Math.log10(tcNet(Date.now())+10)*10)/10};}
+function tcBonusReady(){return S.tc.bn.d!==dayKey()&&S.ledger.some(x=>x.day===dayKey());}
+function tcClick(a,id,v){
+  const t=S.tc,now=Date.now();tcTick();
+  switch(a){
+    case 'tcsub':ui.mn=v;render();break;
+    case 'tcaway':ui.tcAway=null;render();break;
+    case 'tcmode':ui.tcm=v==='max'?'max':parseInt(v,10);render();break;
+    case 'tcbuy':{const b=TCB.find(x=>x.id===id),have=t.n[id]||0;let k=ui.tcm==='max'?tcMax(b,have,t.cash):ui.tcm;if(k<1)k=1;const c=tcCostK(b,have,k);if(t.cash<c)break;t.cash-=c;t.n[id]=have+k;save();render();break;}
+    case 'tcup':{const u=TCU.find(x=>x.id===id);if(!u||t.up[id]||t.cash<u.c)break;t.cash-=u.c;t.up[id]=1;save();render();break;}
+    case 'tcbonus':if(tcBonusReady()){t.bn={d:dayKey(),until:now+3600000};save();toast('بونص الانضباط: دخلك ×2 لمدة ساعة');render();}break;
+    case 'tcsb':{const s=TCS.find(x=>x.id===id),p=tcPrice(s,now);let k=v==='max'?Math.floor(t.cash/p):parseInt(v,10);if(k<1||t.cash<p*k)break;t.cash-=p*k;t.sh[id]=(t.sh[id]||0)+k;save();render();break;}
+    case 'tcss':{const s=TCS.find(x=>x.id===id),p=tcPrice(s,now),h=t.sh[id]||0;let k=v==='all'?h:parseInt(v,10);k=Math.min(k,h);if(k<1)break;t.sh[id]=h-k;t.cash+=p*k;save();render();break;}
+    case 'tcprest':{const g=Math.floor(Math.sqrt(t.tot/1e6));if(g<1)break;if(!ui.tcPr){ui.tcPr=true;toast('اضغط تاني لتأكيد التأسيس الجديد');render();break;}ui.tcPr=false;t.pr.n+=g;t.cash=20;t.tot=0;t.n={};t.up={};t.sh={};save();toast('تأسيس جديد: +'+g+' سهم مؤسس');render();break;}
+  }
+}
+function tcSpark(s,now){
+  const pts=[];for(let i=30;i>=0;i--)pts.push(tcPrice(s,now-i*60000));
+  const lo=Math.min(...pts),hi=Math.max(...pts),r=hi-lo||1;
+  return '<svg viewBox="0 0 120 30" width="120" height="30" aria-hidden="true"><polyline fill="none" stroke="'+(pts[30]>=pts[29]?'var(--ok)':'var(--bad)')+'" stroke-width="1.6" points="'+pts.map((p,i)=>(i*4)+','+(28-(p-lo)/r*26)).join(' ')+'"/></svg>';
+}
+function vTc(){
+  tcTick();const t=S.tc,now=Date.now(),inc=tcInc(now),ev=tcEv(now),mode=ui.tcm||1;
+  let h='';
+  if(ui.tcAway)h+='<button class="rdc" data-act="tcaway">غبت '+N(ui.tcAway.m)+' دقيقة والتجارة كسبت لك '+N(tcF(ui.tcAway.g))+' <span class="rdl">اضغط للإخفاء</span></button>';
+  h+='<section class="panel" style="text-align:center"><div class="hint" style="margin:0">رصيدك في اللعبة</div><div class="num tccash" id="tccash" style="font-size:34px;font-weight:700;color:var(--gold)">'+tcF(t.cash)+'</div><div class="hint" style="margin:4px 0 0">الدخل: <b class="num" id="tcinc">'+tcF2(inc)+'</b> في الثانية'+(t.pr.n?' · مضاعف المؤسس ×'+(1+.1*t.pr.n).toFixed(1):'')+'</div><div class="hint" style="margin:4px 0 0">صافي ثروتك: <b class="num">'+tcF(tcNet(now))+'</b></div></section>';
+  if(ev)h+='<div class="proof" style="margin:0 0 12px;border-color:var(--gold)"><b style="color:var(--gold)">حدث في السوق</b> · '+esc(ev.e[0])+' · ×'+ev.e[2]+' · باقي '+N(Math.ceil((ev.until-now)/60000))+' دقيقة</div>';
+  if(now<t.bn.until)h+='<div class="proof" style="margin:0 0 12px;border-color:var(--ok)"><b style="color:var(--ok)">بونص الانضباط شغّال</b> · دخلك ×2 · باقي '+N(Math.ceil((t.bn.until-now)/60000))+' دقيقة</div>';
+  else if(tcBonusReady())h+='<button class="btn fill block" data-act="tcbonus" style="margin-bottom:12px">سجّلت مصروف النهارده في الدفتر: استلم بونص ×2 لساعة</button>';
+  h+='<div class="chips" style="margin-bottom:10px">'+[1,10,100,'max'].map(k=>'<button class="chip" data-act="tcmode" data-v="'+k+'" aria-pressed="'+(mode===k)+'">'+(k==='max'?'أقصى':'×'+k)+'</button>').join('')+'</div>';
+  h+='<section class="panel"><div class="ptitle">مشاريعك</div>'+TCB.map(b=>{
+    const have=t.n[b.id]||0;let k=mode==='max'?Math.max(1,tcMax(b,have,t.cash)):mode,c=tcCostK(b,have,k),vis=have>0||t.cash>=b.c*.5||TCB.indexOf(b)===0||(t.n[TCB[Math.max(0,TCB.indexOf(b)-1)].id]||0)>0;
+    if(!vis)return '';
+    return '<div class="tcr"><div><div class="nmx">'+esc(b.n)+' <span class="num hint" style="margin:0">×'+have+'</span></div><div class="w">'+(have?'بيجيب '+N(tcF2(b.i*have*tcMult(b.id,now)))+' في الثانية':'بيجيب '+N(tcF2(b.i*tcMult(b.id,now)))+' في الثانية للوحدة')+'</div></div><button class="btn sm" data-act="tcbuy" data-id="'+b.id+'" data-cost="'+c+'"'+(t.cash<c?' disabled':'')+'>×'+k+' · '+N(tcF(c))+'</button></div>';}).join('')+'</section>';
+  const ups=TCU.filter(u=>!t.up[u.id]&&(u.t==='all'?(t.n.ks||0)>=5:(t.n[u.t]||0)>=1));
+  if(ups.length)h+='<section class="panel"><div class="ptitle">ترقيات</div>'+ups.map(u=>'<div class="tcr"><div><div class="nmx">'+esc(u.n)+'</div><div class="w">دخل '+(u.t==='all'?'كل المشاريع':esc(TCB.find(b=>b.id===u.t).n))+' ×'+u.m+'</div></div><button class="btn sm" data-act="tcup" data-id="'+u.id+'" data-cost="'+u.c+'"'+(t.cash<u.c?' disabled':'')+'>'+N(tcF(u.c))+'</button></div>').join('')+'</section>';
+  h+='<section class="panel"><div class="ptitle">البورصة التجريبية</div><p class="hint" style="margin:0 0 8px">أسعار خيالية بتتحرك في موجات. شوف الرسم، واشتري وهي واطية وبيع وهي عالية. للتسلية بس، مش نصيحة استثمار حقيقية.</p>'+TCS.map(s=>{const p=tcPrice(s,now),h2=t.sh[s.id]||0;return '<div class="tcr" style="align-items:flex-start"><div><div class="nmx">'+esc(s.n)+'</div><div class="w">'+N(tcF2(p))+' للسهم · معاك '+N(h2)+'</div>'+tcSpark(s,now)+'</div><div style="display:grid;gap:6px"><div class="row" style="gap:6px"><button class="btn sm" data-act="tcsb" data-id="'+s.id+'" data-v="1">شراء 1</button><button class="btn sm" data-act="tcsb" data-id="'+s.id+'" data-v="max">أقصى</button></div><div class="row" style="gap:6px"><button class="btn sm" data-act="tcss" data-id="'+s.id+'" data-v="1">بيع 1</button><button class="btn sm" data-act="tcss" data-id="'+s.id+'" data-v="all">بيع الكل</button></div></div></div>';}).join('')+'</section>';
+  const g=Math.floor(Math.sqrt(t.tot/1e6));
+  h+='<section class="panel"><div class="ptitle">تأسيس جديد</div><p class="hint" style="margin:0 0 10px">لما تكسب مليون في الجولة، تقدر تبدأ من الأول وتاخد أسهم مؤسس. كل سهم بيزوّد دخلك 10% للأبد. أسهمك دلوقتي: <b class="num">'+t.pr.n+'</b></p><button class="btn block'+(g>=1?' fill':'')+'" data-act="tcprest"'+(g>=1?'':' disabled')+'>'+(g>=1?(ui.tcPr?'اضغط تاني للتأكيد':'ابدأ من جديد واكسب '+g+' سهم'):'محتاج مليون في الجولة (كسبت '+tcF(t.tot)+')')+'</button></section>';
+  const lg=typeof live!=='undefined'&&live.league?live.league:{},rows=[];
+  Object.keys(lg).forEach(k=>{const x=lg[k];if(!x||typeof x!=='object'||!x.tc||typeof x.tc!=='object'||k===ctx.uid)return;rows.push({n:nm(x.n),p:nz(x.tc.p,500),w:nz(x.tc.w,40)});});
+  const me=tcStats();rows.push({n:S.name||'انت',p:me.p,w:me.w,me:true});rows.sort((a,b)=>b.p-a.p||b.w-a.w);
+  if(rows.length>1)h+='<section class="panel"><div class="ptitle">أغنى تاجر في الشلة</div>'+rows.map((r,i)=>'<div class="lb'+(r.me?' me':'')+'"><span class="pos'+(i===0?' g':'')+'">'+(i+1)+'</span><div><div class="nmx">'+esc(r.n)+(r.me?' (انت)':'')+'</div><div class="w">'+r.p+' سهم مؤسس</div></div></div>').join('')+'</section>';
+  h+='<p class="hint">اللعبة للتسلية بس. جنيه اللعبة مالوش علاقة بفلوسك أو خبرتك الحقيقية، وبيشتغل وانت مش فاتح التطبيق (حد أقصى 8 ساعات).</p>';
+  return h;
+}
+setInterval(()=>{try{
+  if(!S.tc||ui.tab!=='gym'||ui.field!=='money'||ui.mn!=='game')return;
+  tcTick();const now=Date.now(),c=document.getElementById('tccash'),i=document.getElementById('tcinc');
+  if(c)c.textContent=tcF(S.tc.cash);if(i)i.textContent=tcF2(tcInc(now));
+  document.querySelectorAll('[data-cost]').forEach(b=>{b.disabled=S.tc.cash<parseFloat(b.dataset.cost);});
+  if(!(now%15000<1000))return;save();
+}catch(x){}},1000);
+
+/* ---------- money: envelopes, goals, weekly review, deals ---------- */
+const MVNS=['ترفيه','أخرى'];
+function mvInit(){
+  if(!S.mv||typeof S.mv!=='object')S.mv={};
+  const m=S.mv;
+  if(!m.lim||typeof m.lim!=='object')m.lim={};
+  if(!m.closed||typeof m.closed!=='object')m.closed={};
+  if(!Array.isArray(m.goals))m.goals=[];
+  if(!m.ns||typeof m.ns!=='object')m.ns={};
+  if(!m.rv||typeof m.rv!=='object')m.rv={};
+  if(!Array.isArray(m.deals))m.deals=[];
+}
+const mvF=n=>fmt(Math.round(n));
+function mvWk(d){const s=new Date((d||new Date()).getTime());s.setHours(12,0,0,0);s.setDate(s.getDate()-((s.getDay()+1)%7));return dayKey(s);}
+function mvWkShift(k,n){const s=new Date(k+'T12:00:00');s.setDate(s.getDate()+n);return dayKey(s);}
+const mvDaysIn=m=>new Date(+m.slice(0,4),+m.slice(5,7),0).getDate();
+function mvPay(xp,label){const before=snap();S.entries.push({id:uid(),day:dayKey(),ts:Date.now(),kind:'money',stat:'money',xp,gold:Math.round(xp/2),label});gainToast(xp,Math.round(xp/2));celebrate(before);}
+const mvOut=(a,b)=>S.ledger.filter(t=>t.type==='out'&&t.day>=a&&t.day<=b);
+function mvEditable(m){const L=S.mv.lim[m]||{};return m===dayKey().slice(0,7)&&(!Object.keys(L).length||+dayKey().slice(8,10)<=5);}
+function mvStreak(){let n=0,i=1;while(S.mv.ns[dayKey(daysAgo(i))]){n++;i++;}return n;}
+function mvAvail(){const all=S.ledger.filter(t=>t.type==='save'||t.type==='inv').reduce((a,t)=>a+t.amt,0);return Math.max(0,all-S.mv.goals.reduce((a,g)=>a+g.saved,0));}
+function mvHealth(){
+  const m=dayKey().slice(0,7),sm=ledgerSum(m),ef=efInfo(),L=S.mv.lim[m]||{},ks=Object.keys(L).filter(k=>L[k]>0);
+  const sr=sm.in>0?Math.min(1,((sm.save+sm.inv)/sm.in)/.2):0;
+  const efr=ef.target>0?Math.min(1,ef.saved/ef.target):0;
+  const er=ks.length?ks.filter(k=>(sm.cats[k]||0)<=L[k]).length/ks.length:0;
+  const wk=mvWk(),hb=(S.mv.rv[wk]||S.mv.rv[mvWkShift(wk,-7)])?1:0,hn=Math.min(7,mvStreak())/7;
+  const parts=[['الادخار',sr],['صندوق الطوارئ',efr],['التزام المظاريف',er],['العادات',(hb+hn)/2]];
+  return {score:Math.round(parts.reduce((a,p)=>a+p[1]*25,0)),parts};
+}
+/* ----- actions ----- */
+function mvClick(a,id,v){
+  const f=ui.mv.f,t=dayKey(),m=t.slice(0,7);
+  switch(a){
+    case 'mvsub':ui.mn=v;render();break;
+    case 'mvcopy':{const prev=Object.keys(S.mv.lim).sort().filter(k=>k<m&&Object.keys(S.mv.lim[k]).length).pop();if(!prev){toast('مفيش ميزانية قديمة تتنسخ');break;}S.mv.lim[m]=Object.assign({},S.mv.lim[prev]);save();render();break;}
+    case 'mvlim':{
+      if(!mvEditable(m)){toast('الميزانية اتقفلت للشهر ده');break;}
+      const L=Object.assign({},S.mv.lim[m]||{});
+      LSUB.out.forEach((c,i)=>{const raw=f['l'+i];const x=raw!==undefined?parseFloat(raw):L[c];if(x>0)L[c]=Math.round(x);else delete L[c];});
+      S.mv.lim[m]=L;ui.mv.f={};save();render();toast('اتحفظت ميزانية الشهر. بتتقفل بعد يوم 5');break;}
+    case 'mvclose':{
+      const L=S.mv.lim[id]||{},ks=Object.keys(L),sm=ledgerSum(id);
+      const kept=ks.filter(k=>(sm.cats[k]||0)<=L[k]).length,cnt=S.ledger.filter(x=>x.type==='out'&&monthOf(x.day)===id).length;
+      let xp=0;if(cnt>=10&&ks.length)xp=Math.min(60,kept*8+(kept===ks.length&&ks.length>=3?20:0));
+      S.mv.closed[id]={k:kept,n:ks.length,xp};if(xp)mvPay(xp,'قفلت ميزانية '+id+' · '+kept+' من '+ks.length+' مظروف سليم');
+      else toast('مفيش XP: محتاج 10 مصاريف مسجّلة في الشهر على الأقل');save();render();break;}
+    case 'mvgnew':ui.mv.gf=!ui.mv.gf;render();break;
+    case 'mvgef':{const e=efInfo();if(!(e.target>0)){toast('سجّل مصاريف كام شهر الأول عشان نحسب صندوق الطوارئ');break;}f.gn='صندوق الطوارئ';f.ga=String(Math.round(e.target));f.gd=f.gd||'365';render();break;}
+    case 'mvgd':f.gd=v;render();break;
+    case 'mvgadd':{
+      const n=(f.gn||'').trim(),amt=parseFloat(f.ga),days=parseInt(f.gd,10)||0;
+      if(!n){toast('اكتب اسم الهدف');break;}if(!(amt>0)){toast('اكتب مبلغ الهدف');break;}if(days<14){toast('اختار مدة 14 يوم أو أكتر');break;}
+      if(S.mv.goals.filter(g=>!g.done).length>=8){toast('عندك 8 أهداف شغّالة، خلّص واحد الأول');break;}
+      const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+days);
+      S.mv.goals.push({id:uid(),n:n.slice(0,40),amt:Math.round(amt),due:dayKey(d),start:t,saved:0,ms:[],done:0});ui.mv.gf=false;ui.mv.f={};save();render();break;}
+    case 'mvgo':ui.mv.g=ui.mv.g===id?null:id;f.al='';render();break;
+    case 'mvgal':{
+      const g=S.mv.goals.find(x=>x.id===id),x=parseFloat(f.al);if(!g||g.done)break;
+      if(!(x>0)){toast('اكتب المبلغ');break;}if(x>mvAvail()){toast('رصيد التوفير المسجّل في الدفتر مش كفاية. سجّل عملية توفير الأول');break;}
+      const before=g.saved/g.amt;g.saved=Math.min(g.amt,g.saved+Math.round(x));const after=g.saved/g.amt;
+      [[.25,10],[.5,15],[.75,20],[1,40]].forEach(p=>{if(before<p[0]&&after>=p[0]&&!g.ms.includes(p[0])){g.ms.push(p[0]);mvPay(p[1],'هدف «'+g.n+'» وصل '+Math.round(p[0]*100)+'%');}});
+      if(after>=1)g.done=Date.now();f.al='';ui.mv.g=null;save();render();break;}
+    case 'mvgdel':if(ui.mv.dg!==id){ui.mv.dg=id;toast('اضغط تاني للحذف');render();}else{S.mv.goals=S.mv.goals.filter(g=>g.id!==id);ui.mv.dg=null;save();render();}break;
+    case 'mvns':{
+      const y=dayKey(daysAgo(1));if(S.mv.ns[y])break;
+      if(mvOut(y,y).some(x=>MVNS.includes(x.sub))){toast('امبارح فيه مصروف ترفيه أو أخرى مسجّل');break;}
+      S.mv.ns[y]=1;const s=mvStreak();let xp=3+(s===3?6:s===7?15:s===14?30:0);mvPay(xp,'يوم بلا إنفاق غير ضروري · '+s+' متتالي');save();render();break;}
+    case 'mvrev':{
+      const wk=mvWk(),a=(f.r1||'').trim(),b=(f.r2||'').trim(),c=(f.r3||'').trim();
+      if(S.mv.rv[wk]){toast('راجعت الأسبوع ده');break;}
+      const wo=S.ledger.filter(x=>x.day>=wk&&x.day<=mvWkShift(wk,6));
+      if(wo.length<3){toast('سجّل 3 عمليات على الأقل في الأسبوع قبل المراجعة');break;}
+      if(rbWords(a)<6||rbWords(b)<6||rbWords(c)<6){toast('كل إجابة 6 كلمات على الأقل');break;}
+      let s=1,k=mvWkShift(wk,-7);while(S.mv.rv[k]){s++;k=mvWkShift(k,-7);}
+      S.mv.rv[wk]={a:a.slice(0,160),b:b.slice(0,160),c:c.slice(0,160),ts:Date.now()};
+      mvPay(15+Math.min(15,(s-1)*5),'مراجعة أسبوعية مالية · '+s+' أسبوع متتالي');ui.mv.f={};save();render();break;}
+    case 'mvkept':{const k=mvWkShift(mvWk(),-7);if(S.mv.rv[k]){S.mv.rv[k].kept=parseInt(v,10);save();render();}break;}
+    case 'mvdnew':ui.mv.df=!ui.mv.df;render();break;
+    case 'mvdadd':{
+      const n=(f.dn||'').trim(),q=parseInt(f.dq,10),c=parseFloat(f.dc);
+      if(!n||!(q>0)||!(c>0)){toast('اكتب الاسم والكمية وتكلفة الوحدة');break;}
+      if(S.mv.deals.length>=150){toast('وصلت الحد الأقصى للصفقات');break;}
+      S.mv.deals.push({id:uid(),n:n.slice(0,40),q,c:Math.round(c*100)/100,d0:t,d1:'',s:0});ui.mv.df=false;ui.mv.f={};save();render();break;}
+    case 'mvdc':ui.mv.dc=ui.mv.dc===id?null:id;f.ds='';render();break;
+    case 'mvdsell':{const d=S.mv.deals.find(x=>x.id===id),p=parseFloat(f.ds);if(!d||!(p>0)){toast('اكتب سعر بيع الوحدة');break;}d.s=Math.round(p*100)/100;d.d1=t;ui.mv.dc=null;f.ds='';save();render();break;}
+    case 'mvdinc':{const d=S.mv.deals.find(x=>x.id===id);if(!d||!d.s||d.inc)break;const pr=Math.round((d.s-d.c)*d.q*100)/100;if(pr<=0){toast('مفيش ربح يتسجّل');break;}S.ledger.push({id:uid(),day:t,ts:Date.now(),type:'in',sub:'شغل جانبي',amt:pr,note:('ربح '+d.n).slice(0,40)});d.inc=1;save();render();toast('اتسجّل ربح الصفقة في الدفتر');break;}
+    case 'mvddel':if(ui.mv.dd!==id){ui.mv.dd=id;toast('اضغط تاني للحذف');render();}else{S.mv.deals=S.mv.deals.filter(d=>d.id!==id);ui.mv.dd=null;save();render();}break;
+  }
+}
+function mvInput(t){ui.mv.f[t.id.slice(3)]=t.value;}
+/* ----- views ----- */
+function mvHealthPanel(){
+  const H=mvHealth(),col=H.score>=70?'var(--ok)':H.score>=40?'var(--gold)':'var(--bad)';
+  return '<section class="panel"><div class="ptitle">صحتك المالية<span class="sp"></span><span class="side num" style="color:'+col+';font-size:18px;font-weight:700">'+H.score+'</span></div>'+bar(H.score,100,col)+H.parts.map(p=>'<div class="tgt" style="margin:8px 0 0"><span>'+p[0]+'</span><b class="num">'+Math.round(p[1]*25)+' / 25</b></div>').join('')+'<p class="hint" style="margin:10px 0 0">الدرجة بتتحسب من الدفتر والمظاريف والصندوق والعادات، مش بتتأثر بأي حاجة بتكتبها لنفسك.</p></section>';
+}
+function vEnv(){
+  const t=dayKey(),m=t.slice(0,7),L=S.mv.lim[m]||{},sm=ledgerSum(m),ks=LSUB.out.filter(c=>L[c]>0),ed=mvEditable(m),f=ui.mv.f;
+  const sumL=ks.reduce((a,c)=>a+L[c],0),left=ks.reduce((a,c)=>a+Math.max(0,L[c]-(sm.cats[c]||0)),0),dl=Math.max(1,mvDaysIn(m)-(+t.slice(8,10))+1);
+  let h='<section class="panel"><div class="ptitle">مظاريف الشهر</div><div class="tgt" style="margin:0 0 6px"><span>دخلك المسجّل</span><b class="num">'+mvF(sm.in)+'</b></div><div class="tgt" style="margin:0 0 6px"><span>مجموع المظاريف</span><b class="num">'+mvF(sumL)+'</b></div>'+(ks.length?'<div class="tgt" style="margin:0 0 6px"><span>مسموح لك في اليوم</span><b class="num">'+mvF(left/dl)+'</b></div>':'')+'<p class="hint" style="margin:8px 0 0">كل مظروف هو حد صرف لتصنيف. المصروف بيتحسب لوحده من الدفتر، ومحتاج تسجّله هناك.</p></section>';
+  if(ks.length)h+='<section class="panel">'+ks.map(c=>{const sp=sm.cats[c]||0,r=sp/L[c],col=r>1?'var(--bad)':r>.8?'var(--gold)':'var(--ok)';return '<div style="margin:0 0 14px"><div class="tgt" style="margin:0 0 4px"><span>'+c+'</span><b class="num">'+mvF(sp)+' / '+mvF(L[c])+'</b></div>'+bar(Math.min(sp,L[c]),L[c],col)+'<div class="hint" style="margin:4px 0 0">'+(sp>L[c]?'عدّيت المظروف بـ '+N(mvF(sp-L[c])):'باقي '+N(mvF(L[c]-sp)))+'</div></div>';}).join('')+'</section>';
+  if(ed){
+    h+='<section class="panel"><div class="ptitle">حدّد المظاريف</div><p class="hint" style="margin:0 0 8px">تقدر تعدّل لحد يوم 5 من الشهر، وبعدها بتتقفل. ده الالتزام.</p>'+LSUB.out.map((c,i)=>'<div class="tcr"><label for="mvxl'+i+'">'+c+'</label><input class="in" id="mvxl'+i+'" inputmode="numeric" maxlength="7" style="width:120px" value="'+esc(f['l'+i]!==undefined?f['l'+i]:(L[c]||''))+'" placeholder="0"></div>').join('')+'<div class="row" style="margin-top:12px"><button class="btn fill" data-act="mvlim" style="flex:1">حفظ</button>'+(!ks.length?'<button class="btn" data-act="mvcopy" style="flex:1">انسخ الشهر اللي فات</button>':'')+'</div></section>';
+  }else h+='<section class="panel"><p class="hint" style="margin:0">ميزانية الشهر ده اتقفلت. هتقدر تحدّد ميزانية الشهر الجاي من أول يوم فيه.</p></section>';
+  const pend=Object.keys(S.mv.lim).filter(k=>k<m&&Object.keys(S.mv.lim[k]).length&&!S.mv.closed[k]).sort();
+  if(pend.length)h+='<section class="panel"><div class="ptitle">شهور جاهزة للقفل</div>'+pend.map(k=>'<div class="tcr"><span>'+k+'</span><button class="btn sm fill" data-act="mvclose" data-id="'+k+'">اقفل وقيّم</button></div>').join('')+'<p class="hint" style="margin:8px 0 0">الخبرة: 8 لكل مظروف التزمت بيه، وبونص 20 لو التزمت بكل مظاريفك (3 على الأقل). مطلوب 10 مصاريف مسجّلة في الشهر.</p></section>';
+  const cl=Object.keys(S.mv.closed).sort().reverse().slice(0,6);
+  if(cl.length)h+='<section class="panel"><div class="ptitle">شهور اتقفلت</div>'+cl.map(k=>{const c=S.mv.closed[k];return '<div class="tgt" style="margin:0 0 6px"><span>'+k+'</span><b class="num">'+c.k+' / '+c.n+(c.xp?' · +'+c.xp:'')+'</b></div>';}).join('')+'</section>';
+  return h;
+}
+function vGoals(){
+  const f=ui.mv.f,t=dayKey(),av=mvAvail();
+  let h='<section class="panel"><div class="ptitle">أهدافك<span class="sp"></span><button class="btn sm fill" data-act="mvgnew">+ هدف</button></div><div class="tgt" style="margin:0"><span>رصيد توفير في الدفتر غير موزّع على أهداف</span><b class="num">'+mvF(av)+'</b></div><p class="hint" style="margin:8px 0 0">الفلوس اللي بتحطها في هدف لازم تكون مسجّلة كتوفير أو استثمار في الدفتر الأول. الخبرة عند 25% و50% و75% و100%.</p></section>';
+  if(ui.mv.gf)h+='<section class="panel"><div class="ptitle">هدف جديد</div><label class="lbl" for="mvxgn" style="margin-top:0">اسم الهدف</label><input class="in" id="mvxgn" maxlength="40" value="'+esc(f.gn||'')+'"><label class="lbl" for="mvxga">المبلغ المطلوب</label><input class="in" id="mvxga" inputmode="numeric" maxlength="8" value="'+esc(f.ga||'')+'"><span class="lbl">المدة</span><div class="chips">'+[[30,'شهر'],[90,'3 شهور'],[180,'6 شهور'],[365,'سنة']].map(x=>'<button class="chip" data-act="mvgd" data-v="'+x[0]+'" aria-pressed="'+(String(f.gd)===String(x[0]))+'">'+x[1]+'</button>').join('')+'</div><div class="row" style="margin-top:12px"><button class="btn fill" data-act="mvgadd" style="flex:1">إنشاء</button><button class="btn" data-act="mvgef" style="flex:1">صندوق طوارئ 3 شهور</button></div></section>';
+  const gs=S.mv.goals.slice().sort((a,b)=>(a.done?1:0)-(b.done?1:0));
+  if(!gs.length&&!ui.mv.gf)h+='<p class="hint" style="text-align:center">مفيش أهداف لسه.</p>';
+  gs.forEach(g=>{
+    const left=Math.max(0,g.amt-g.saved),dleft=Math.max(1,Math.round((new Date(g.due+'T12:00:00')-new Date(t+'T12:00:00'))/86400000)),tot=Math.max(1,Math.round((new Date(g.due+'T12:00:00')-new Date(g.start+'T12:00:00'))/86400000)),exp=Math.min(1,(tot-dleft)/tot),ahead=g.saved/g.amt>=exp-.02;
+    h+='<section class="panel"><div class="ptitle">'+esc(g.n)+'<span class="sp"></span><span class="side">'+(g.done?'اتحقق':ahead?'ماشي كويس':'متأخر')+'</span></div>'+bar(g.saved,g.amt,g.done?'var(--gold)':ahead?'var(--ok)':'var(--gold)')+'<div class="barcap"><span>'+N(mvF(g.saved)+' / '+mvF(g.amt))+'</span><span>'+(g.done?'':'باقي '+N(dleft)+' يوم')+'</span></div>';
+    if(!g.done){
+      h+='<p class="hint" style="margin:8px 0 0">محتاج تحوّش حوالي '+N(mvF(left/Math.max(1,dleft/7)))+' في الأسبوع، أو '+N(mvF(left/Math.max(1,dleft/30)))+' في الشهر.</p>';
+      if(ui.mv.g===g.id)h+='<label class="lbl" for="mvxal">كام هتحط في الهدف ده؟</label><input class="in" id="mvxal" inputmode="numeric" maxlength="8" value="'+esc(f.al||'')+'"><div class="row" style="margin-top:8px"><button class="btn fill" data-act="mvgal" data-id="'+g.id+'" style="flex:1">تأكيد</button><button class="btn" data-act="mvgo" data-id="'+g.id+'" style="flex:1">إلغاء</button></div>';
+      else h+='<div class="row" style="margin-top:10px"><button class="btn" data-act="mvgo" data-id="'+g.id+'" style="flex:1">حوّشت</button><button class="btn bad" data-act="mvgdel" data-id="'+g.id+'" style="flex:1">'+(ui.mv.dg===g.id?'تأكيد':'حذف')+'</button></div>';
+    }
+    h+='</section>';
+  });
+  return h;
+}
+function vWeek(){
+  const f=ui.mv.f,t=dayKey(),wk=mvWk(),end=mvWkShift(wk,6),pw=mvWkShift(wk,-7),done=S.mv.rv[wk],prev=S.mv.rv[pw];
+  const out=mvOut(wk,end),tot=out.reduce((a,x)=>a+x.amt,0),pt=mvOut(pw,mvWkShift(pw,6)).reduce((a,x)=>a+x.amt,0),cats={};
+  out.forEach(x=>cats[x.sub]=(cats[x.sub]||0)+x.amt);const top=Object.keys(cats).sort((a,b)=>cats[b]-cats[a])[0];
+  const y=dayKey(daysAgo(1)),nsd=!!S.mv.ns[y],s=mvStreak();
+  let h='<section class="panel"><div class="ptitle">يوم بلا إنفاق غير ضروري<span class="sp"></span><span class="side num">'+s+' متتالي</span></div><p class="hint" style="margin:0 0 10px">امبارح مفيش فيه مصروف ترفيه أو أخرى؟ سجّله هنا. التطبيق بيتأكد من الدفتر. 3 خبرة لكل يوم، وبونص عند 3 و7 و14 يوم متتالي.</p><button class="btn'+(nsd?'':' fill')+' block" data-act="mvns"'+(nsd?' disabled':'')+'>'+(nsd?'امبارح اتسجّل':'سجّل يوم امبارح')+'</button></section>';
+  h+='<section class="panel"><div class="ptitle">مراجعة الأسبوع</div><div class="tgt" style="margin:0 0 6px"><span>صرفت الأسبوع ده</span><b class="num">'+mvF(tot)+'</b></div>'+(top?'<div class="tgt" style="margin:0 0 6px"><span>أكتر تصنيف</span><b>'+esc(top)+' · '+N(mvF(cats[top]))+'</b></div>':'')+(pt?'<div class="tgt" style="margin:0 0 6px"><span>مقارنة بالأسبوع اللي فات</span><b class="num">'+(tot>=pt?'زاد ':'نزل ')+Math.abs(Math.round((tot-pt)/pt*100))+'%</b></div>':'');
+  if(prev&&prev.kept===undefined)h+='<div class="proof"><b>التزامك الأسبوع اللي فات:</b> «'+esc(prev.c)+'»<div class="row" style="margin-top:8px"><button class="btn sm fill" data-act="mvkept" data-v="1" style="flex:1">نفّذت</button><button class="btn sm" data-act="mvkept" data-v="0" style="flex:1">لا</button></div></div>';
+  if(done)h+='<div class="proof" style="border-color:var(--ok)"><b style="color:var(--ok)">راجعت الأسبوع ده</b><div style="margin-top:6px;line-height:1.8">«'+esc(done.c)+'»</div></div>';
+  else h+='<label class="lbl" for="mvxr1">إيه أكبر مصروف الأسبوع ده؟</label><textarea class="in lt" id="mvxr1" maxlength="160" style="min-height:60px">'+esc(f.r1||'')+'</textarea><label class="lbl" for="mvxr2">إيه اللي كان مش لازم؟</label><textarea class="in lt" id="mvxr2" maxlength="160" style="min-height:60px">'+esc(f.r2||'')+'</textarea><label class="lbl" for="mvxr3">إيه اللي هتغيّره الأسبوع الجاي؟</label><textarea class="in lt" id="mvxr3" maxlength="160" style="min-height:60px">'+esc(f.r3||'')+'</textarea><button class="btn fill block" data-act="mvrev" style="margin-top:12px">تسليم المراجعة</button><p class="hint" style="margin:8px 0 0">15 خبرة + بونص لتتابع الأسابيع. محتاج 3 عمليات مسجّلة في الأسبوع، وكل إجابة 6 كلمات.</p>';
+  h+='</section>';
+  const past=Object.keys(S.mv.rv).sort().reverse().filter(k=>k!==wk).slice(0,4);
+  if(past.length)h+='<section class="panel"><div class="ptitle">مراجعاتك</div>'+past.map(k=>'<details class="rbch done" style="color:inherit"><summary>أسبوع '+k+(S.mv.rv[k].kept===1?' · نفّذت':S.mv.rv[k].kept===0?' · ما نفّذتش':'')+'</summary><p style="margin:8px 0 0;line-height:1.8">'+esc(S.mv.rv[k].c)+'</p></details>').join('')+'</section>';
+  return h;
+}
+function vDeals(){
+  const f=ui.mv.f,D=S.mv.deals,sold=D.filter(d=>d.s),open=D.filter(d=>!d.s);
+  const profit=sold.reduce((a,d)=>a+(d.s-d.c)*d.q,0),rev=sold.reduce((a,d)=>a+d.s*d.q,0),cost=sold.reduce((a,d)=>a+d.c*d.q,0);
+  const days=sold.length?sold.reduce((a,d)=>a+Math.max(0,Math.round((new Date(d.d1+'T12:00:00')-new Date(d.d0+'T12:00:00'))/86400000)),0)/sold.length:0;
+  const best=sold.slice().sort((a,b)=>(b.s-b.c)*b.q-(a.s-a.c)*a.q)[0];
+  let h='<section class="panel"><div class="ptitle">صفقاتك<span class="sp"></span><button class="btn sm fill" data-act="mvdnew">+ صفقة</button></div>'+(sold.length?'<div class="tgt" style="margin:0 0 6px"><span>إجمالي الربح</span><b class="num" style="color:'+(profit>=0?'var(--ok)':'var(--bad)')+'">'+mvF(profit)+'</b></div><div class="tgt" style="margin:0 0 6px"><span>هامش الربح</span><b class="num">'+(cost?Math.round(profit/cost*100):0)+'%</b></div><div class="tgt" style="margin:0 0 6px"><span>متوسط وقت الدوران</span><b class="num">'+Math.round(days)+' يوم</b></div>'+(best?'<div class="tgt" style="margin:0 0 6px"><span>أربح صفقة</span><b>'+esc(best.n)+'</b></div>':''):'<p class="hint" style="margin:0">سجّل صفقاتك واعرف إيه اللي بيكسّب وإيه اللي بيتخزّن.</p>')+(open.length?'<div class="tgt" style="margin:0"><span>رأس مال متخزّن</span><b class="num">'+mvF(open.reduce((a,d)=>a+d.c*d.q,0))+'</b></div>':'')+'</section>';
+  if(ui.mv.df)h+='<section class="panel"><div class="ptitle">صفقة جديدة</div><label class="lbl" for="mvxdn" style="margin-top:0">البضاعة</label><input class="in" id="mvxdn" maxlength="40" value="'+esc(f.dn||'')+'"><div class="row"><div style="flex:1"><label class="lbl" for="mvxdq">الكمية</label><input class="in" id="mvxdq" inputmode="numeric" maxlength="5" value="'+esc(f.dq||'')+'"></div><div style="flex:1"><label class="lbl" for="mvxdc">تكلفة الوحدة</label><input class="in" id="mvxdc" inputmode="decimal" maxlength="8" value="'+esc(f.dc||'')+'"></div></div><div class="row" style="margin-top:12px"><button class="btn fill" data-act="mvdadd" style="flex:1">إضافة</button><button class="btn" data-act="mvdnew" style="flex:1">إلغاء</button></div></section>';
+  D.slice().reverse().forEach(d=>{
+    const pr=d.s?(d.s-d.c)*d.q:0;
+    h+='<section class="panel"><div class="ptitle">'+esc(d.n)+'<span class="sp"></span><span class="side">'+(d.s?'اتباعت':'مخزّن')+'</span></div><div class="tgt" style="margin:0 0 6px"><span>'+N(d.q)+' × '+N(fmt(d.c))+'</span><b class="num">'+mvF(d.q*d.c)+'</b></div>';
+    if(d.s)h+='<div class="tgt" style="margin:0 0 6px"><span>اتباع بـ '+N(fmt(d.s))+' للوحدة</span><b class="num" style="color:'+(pr>=0?'var(--ok)':'var(--bad)')+'">'+(pr>=0?'+':'-')+mvF(Math.abs(pr))+'</b></div><div class="row">'+(!d.inc&&pr>0?'<button class="btn sm" data-act="mvdinc" data-id="'+d.id+'" style="flex:1">سجّل الربح في الدفتر</button>':'')+'<button class="btn sm bad" data-act="mvddel" data-id="'+d.id+'" style="flex:1">'+(ui.mv.dd===d.id?'تأكيد':'حذف')+'</button></div>';
+    else if(ui.mv.dc===d.id)h+='<label class="lbl" for="mvxds">سعر بيع الوحدة</label><input class="in" id="mvxds" inputmode="decimal" maxlength="8" value="'+esc(f.ds||'')+'"><div class="row" style="margin-top:8px"><button class="btn fill" data-act="mvdsell" data-id="'+d.id+'" style="flex:1">تأكيد البيع</button><button class="btn" data-act="mvdc" data-id="'+d.id+'" style="flex:1">إلغاء</button></div>';
+    else h+='<div class="row"><button class="btn" data-act="mvdc" data-id="'+d.id+'" style="flex:1">بعتها</button><button class="btn bad" data-act="mvddel" data-id="'+d.id+'" style="flex:1">'+(ui.mv.dd===d.id?'تأكيد':'حذف')+'</button></div>';
+    h+='</section>';
+  });
+  return h;
+}
+function vMoneyHub(){
+  const tabs=[['ledger','الدفتر'],['env','المظاريف'],['goal','الأهداف'],['week','الأسبوع'],['deal','الصفقات'],['game','لعبة التاجر']];
+  let h='<div class="chips" style="margin-bottom:12px">'+tabs.map(x=>'<button class="chip" data-act="mvsub" data-v="'+x[0]+'" aria-pressed="'+(ui.mn===x[0])+'">'+x[1]+'</button>').join('')+'</div>';
+  if(ui.mn==='game')return h+vTc();
+  if(ui.mn==='env')return h+vEnv();
+  if(ui.mn==='goal')return h+vGoals();
+  if(ui.mn==='week')return h+vWeek();
+  if(ui.mn==='deal')return h+vDeals();
+  return h+mvHealthPanel()+vMoney();
+}
+
 /* ---------- events ---------- */
 document.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-act]');if(!b)return;
@@ -2802,6 +3297,9 @@ document.addEventListener('click',ev=>{
   if(a==='gyfld'){ui.field=v;ui.ln.q=null;render();window.scrollTo(0,0);return;}
   if(a.slice(0,2)==='ln'){lnClick(a,id,v);return;}
   if(a.slice(0,2)==='rd'){rdClick(a,id,v);return;}
+  if(a.slice(0,2)==='rb'){rbClick(a,id,v);return;}
+  if(a.slice(0,2)==='tc'){tcClick(a,id,v);return;}
+  if(a.slice(0,2)==='mv'){mvClick(a,id,v);return;}
   if(a.slice(0,2)==='gy'){gyClick(a,id,v);return;}
   switch(a){
     case 'tab':ui.tab=b.dataset.tab;ui.addU=null;ui.edit=false;ui.addQ=false;ui.addR=false;ui.abort=false;render();window.scrollTo(0,0);break;
@@ -2846,7 +3344,7 @@ document.addEventListener('click',ev=>{
     case 'ladd':addTx();break;
     case 'ldel':
       if(ui.delL===id){delTx(id);}
-      else{ui.delL=id;render();setTimeout(()=>{if(ui.delL===id){ui.delL=null;if(ui.tab==='money')render();}},3500);}
+      else{ui.delL=id;render();setTimeout(()=>{if(ui.delL===id){ui.delL=null;if(ui.tab==='gym'&&ui.field==='money')render();}},3500);}
       break;
     case 'lmore':ui.moreL=!ui.moreL;render();break;
     case 'lgoal':ui.lGoalEdit=true;ui.lGoalVal=S.cfg.sideGoal?String(S.cfg.sideGoal):'';render();break;
@@ -2884,6 +3382,8 @@ document.addEventListener('click',ev=>{
 });
 document.addEventListener('input',ev=>{
   const t=ev.target;
+  if(t.id&&t.id.slice(0,3)==='mvx'){mvInput(t);return;}
+  if(t.id&&t.id.slice(0,3)==='rbx'){rbInput(t);return;}
   if(t.id&&t.id.slice(0,3)==='lnx'){lnInput(t);return;}
   if(t.id&&t.id.slice(0,2)==='gy'||t.id==='gfs'){gyInput(t);return;}
   if(t.id==='pp')ui.pvpPaste=t.value;
